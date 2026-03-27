@@ -433,9 +433,8 @@
     }
 
     .services-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 1.5px;
       background: var(--border);
       border: 1px solid var(--border);
@@ -444,8 +443,6 @@
     }
 
     .service-card {
-      flex: 0 0 calc(33.333% - 1px);
-      min-width: min(300px, 100%);
       background: var(--surface);
       padding: 2.5rem;
       position: relative;
@@ -1300,12 +1297,6 @@
       <span class="service-tag" style="color:#5090e6; background:rgba(80,140,230,0.1); border-color:rgba(80,140,230,0.2)">Brand Growth</span>
     </div>
 
-    <div class="service-card reveal reveal-delay-4">
-      <div class="service-icon">&#128202;</div>
-      <h3>Live Client Dashboard</h3>
-      <p>A real-time command center showing your leads, call metrics, ad performance, and campaign results. Full transparency — you see everything, anytime, from any device.</p>
-      <span class="service-tag" style="color:#e65080; background:rgba(230,80,120,0.1); border-color:rgba(230,80,120,0.2)">Real-Time</span>
-    </div>
   </div>
 </section>
 
