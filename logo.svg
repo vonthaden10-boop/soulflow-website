@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="sfbg" cx="38%" cy="35%" r="65%">
+      <stop offset="0%"   stop-color="#8455E8"/>
+      <stop offset="60%"  stop-color="#6B2FD9"/>
+      <stop offset="100%" stop-color="#4A1CA8"/>
+    </radialGradient>
+    <clipPath id="sfclip">
+      <circle cx="100" cy="100" r="97"/>
+    </clipPath>
+  </defs>
+
+  <!-- Circle — transparent outside (no background rect) -->
+  <circle cx="100" cy="100" r="97" fill="url(#sfbg)"/>
+
+  <!-- All strokes clipped cleanly to circle edge -->
+  <g clip-path="url(#sfclip)">
+
+    <!-- Upper-left arm of S (top cap) -->
+    <path d="M 72,4 C 40,4 30,42 54,62 L 80,82"
+          fill="none" stroke="#0D0D1A" stroke-width="34"
+          stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Main S-flow body: upper-right → crosses center → lower-left -->
+    <path d="M 128,8 C 166,8 168,58 130,78 L 70,122 C 32,142 38,188 78,192"
+          fill="none" stroke="#0D0D1A" stroke-width="34"
+          stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Gold accent road lines at bottom-left (flow / speed lines) -->
+    <line x1="16" y1="180" x2="58" y2="150"
+          stroke="#FFB800" stroke-width="17" stroke-linecap="round"/>
+    <line x1="34" y1="196" x2="76" y2="166"
+          stroke="#FFB800" stroke-width="17" stroke-linecap="round"/>
+
+  </g>
+</svg>
