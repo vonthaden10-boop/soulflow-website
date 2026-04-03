@@ -1,0 +1,9 @@
+credentials.json
+.env
+__pycache__/
+*.pyc
+.modal/
+*.egg-info/
+dist/
+.venv/
+venv/

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(node:*)",
+      "Bash(find /c/Users/corwi/my-agency -type f -not -path \"*/node_modules/*\" -not -path \"*/.git/*\" -exec ls -lh {})",
+      "Bash(sort -k2)",
+      "Skill(update-config)",
+      "Bash(git:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''client_email:'''', d[''''client_email'''']\\); print\\(''''project_id:'''', d[''''project_id'''']\\)\")",
+      "Bash(py --version)",
+      "Read(//c/Users/corwi/AppData/Local/Programs/**)",
+      "Bash(ls /c/Python*)",
+      "Bash(echo $PATH)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"C:/Users/corwi/my-agency\" && git add -A && git commit -m \"update\" && git push",
+            "statusMessage": "Deploying to Netlify..."
+          }
+        ]
+      }
+    ]
+  }
+}

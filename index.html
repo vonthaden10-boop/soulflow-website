@@ -3,123 +3,139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Soulflow — AI-Powered Business Growth</title>
+  <title>VON Systems — AI-Powered Business Automation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
+    /* ═══════════════════════════════════════════
+       RESET & ROOT
+    ═══════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #050508;
-      --bg2:       #0a0a10;
-      --bg3:       #0f0f18;
-      --surface:   #12121e;
-      --border:    rgba(255,255,255,0.07);
-      --accent:    #7b5ea7;
-      --accent2:   #a07fd4;
-      --gold:      #c9a84c;
-      --gold2:     #f0d080;
-      --text:      #e8e8f0;
-      --muted:     #7a7a9a;
-      --glow:      rgba(123,94,167,0.35);
-      --glow2:     rgba(201,168,76,0.25);
+      --black: #000000;
+      --gold:  #c9a84c;
+      --white: #ffffff;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Josefin Sans', sans-serif;
       overflow-x: hidden;
       line-height: 1.6;
+      cursor: none;
     }
 
-    /* ─── NOISE OVERLAY ─── */
-    body::before {
-      content: '';
+    a, button, input, select, textarea, label { cursor: none; }
+
+    /* ═══════════════════════════════════════════
+       CUSTOM CURSOR
+    ═══════════════════════════════════════════ */
+    #cursor-dot {
       position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      width: 8px; height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
       pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      top: 0; left: 0;
+      transition: transform 0.08s;
     }
 
-    /* ─── NAV ─── */
+    #cursor-ring {
+      position: fixed;
+      width: 38px; height: 38px;
+      border: 2px solid rgba(201,168,76,0.7);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      top: 0; left: 0;
+      transition: left 0.18s ease, top 0.18s ease, width 0.25s, height 0.25s, opacity 0.25s;
+    }
+
+    body:has(.btn-gold:hover) #cursor-ring,
+    body:has(.btn-outline:hover) #cursor-ring,
+    body:has(.form-submit:hover) #cursor-ring {
+      width: 56px; height: 56px;
+      opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════ */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
-      z-index: 100;
+      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 5%;
+      padding: 0 6%;
       height: 72px;
-      background: rgba(5,5,8,0.75);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(201,168,76,0.18);
+      transition: transform 0.35s ease;
     }
+
+    nav.nav-hidden { transform: translateY(-100%); }
 
     .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.4rem;
+      font-family: 'Cinzel', serif;
+      font-size: 1.45rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #ffffff;
+      letter-spacing: 0.3em;
       text-decoration: none;
+      display: flex;
+      align-items: baseline;
+      gap: 0;
     }
-
-    .nav-logo-icon {
-      height: 32px;
-      width: 32px;
-      flex-shrink: 0;
-    }
-
-    .nav-logo .nav-gold {
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    .nav-logo .von     { color: var(--gold); }
+    .nav-logo .systems { color: var(--white); }
 
     .nav-links {
       display: flex;
-      gap: 2.5rem;
+      gap: 2.75rem;
       list-style: none;
     }
 
     .nav-links a {
-      color: var(--muted);
+      color: rgba(255,255,255,0.65);
       text-decoration: none;
-      font-size: 0.875rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
       transition: color 0.2s;
     }
+    .nav-links a:hover { color: var(--gold); }
 
-    .nav-links a:hover { color: var(--text); }
-
-    .nav-cta {
-      background: linear-gradient(135deg, var(--accent), #5a3d85);
-      color: #fff !important;
-      padding: 0.5rem 1.25rem;
-      border-radius: 6px;
-      font-size: 0.8rem !important;
-      font-weight: 600 !important;
-      letter-spacing: 0.05em !important;
-      text-transform: uppercase;
-      transition: opacity 0.2s, transform 0.2s !important;
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--white);
+      transition: all 0.3s;
     }
 
-    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
-
-    /* ─── HERO ─── */
+    /* ═══════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════ */
     #hero {
       position: relative;
       min-height: 100vh;
@@ -127,886 +143,544 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      padding: 8rem 5% 6rem;
       overflow: hidden;
+      padding: 130px 6% 0;
     }
 
-    .hero-bg {
+    #hero-canvas {
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(123,94,167,0.18) 0%, transparent 65%),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(201,168,76,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 20% 90%, rgba(90,61,133,0.12) 0%, transparent 60%);
+      z-index: 0;
+      display: block;
     }
 
-    /* animated grid */
     .hero-grid {
       position: absolute;
       inset: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+        linear-gradient(rgba(201,168,76,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,168,76,0.06) 1px, transparent 1px);
+      background-size: 64px 64px;
+      z-index: 1;
+      pointer-events: none;
     }
 
-    /* orb animations */
-    .orb {
+    .hero-radial {
       position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      animation: drift 12s ease-in-out infinite alternate;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(ellipse at center,
+        rgba(201,168,76,0.13) 0%,
+        rgba(201,168,76,0.04) 40%,
+        transparent 70%);
+      z-index: 1;
+      pointer-events: none;
     }
 
-    .orb-1 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(123,94,167,0.25), transparent 70%);
-      top: -10%; left: -5%;
-      animation-duration: 14s;
-    }
-
-    .orb-2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(201,168,76,0.15), transparent 70%);
-      bottom: 0; right: -5%;
-      animation-duration: 10s;
-      animation-delay: -4s;
-    }
-
-    .orb-3 {
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(90,61,133,0.2), transparent 70%);
-      top: 50%; left: 60%;
-      animation-duration: 16s;
-      animation-delay: -8s;
-    }
-
-    @keyframes drift {
-      from { transform: translate(0, 0) scale(1); }
-      to   { transform: translate(40px, 30px) scale(1.1); }
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(123,94,167,0.12);
-      border: 1px solid rgba(123,94,167,0.3);
-      border-radius: 100px;
-      padding: 0.4rem 1rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent2);
-      margin-bottom: 2rem;
+    .hero-content {
       position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 920px;
+      perspective: 1400px;
     }
 
-    .badge-dot {
-      width: 6px; height: 6px;
-      background: var(--accent2);
-      border-radius: 50%;
-      animation: pulse-dot 2s ease-in-out infinite;
+    #hero-tilt {
+      transform-style: preserve-3d;
+      transition: transform 0.12s ease-out;
     }
 
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.7); }
+    .hero-headline {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.8rem, 6.5vw, 5.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--white);
+      letter-spacing: 0.02em;
+      margin-bottom: 0;
     }
 
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.8rem, 7vw, 6rem);
-      font-weight: 700;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-
-    .hero h1 .line-accent {
-      background: linear-gradient(135deg, var(--accent2) 0%, #d4a8ff 50%, var(--gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .hero-headline .gold-line {
+      display: block;
+      color: var(--gold);
+      font-style: italic;
+      font-size: clamp(3rem, 7vw, 6.4rem);
     }
 
     .hero-sub {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      color: var(--muted);
-      max-width: 560px;
-      margin: 0 auto 3rem;
-      line-height: 1.7;
-      font-weight: 400;
+      font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+      font-weight: 300;
+      color: rgba(255,255,255,0.72);
+      max-width: 600px;
+      margin: 1.75rem auto 2.75rem;
+      letter-spacing: 0.04em;
+      line-height: 1.75;
     }
 
-    .hero-cta-group {
+    .hero-buttons {
       display: flex;
-      gap: 1rem;
+      gap: 1.1rem;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 5rem;
     }
 
-    .btn-primary {
+    /* ═══════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════ */
+    .btn-gold {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      background: linear-gradient(135deg, var(--accent), #5a3d85);
-      color: #fff;
-      text-decoration: none;
-      padding: 0.9rem 2rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 0.01em;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 0 30px rgba(123,94,167,0.3);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 40px rgba(123,94,167,0.5);
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      text-decoration: none;
-      padding: 0.9rem 2rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-weight: 500;
-      font-size: 0.95rem;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: rgba(255,255,255,0.15);
-      transform: translateY(-2px);
-    }
-
-    .hero-stats {
-      display: flex;
-      gap: 3rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      position: relative;
-    }
-
-    .hero-stat {
-      text-align: center;
-    }
-
-    .hero-stat .num {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
+      gap: 0.55rem;
+      background: var(--gold);
+      color: var(--black);
+      padding: 1rem 2.2rem;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.88rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #fff, var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero-stat .label {
-      font-size: 0.75rem;
-      color: var(--muted);
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-top: 0.2rem;
+      text-decoration: none;
+      border: none;
+      position: relative;
+      transition: box-shadow 0.3s, transform 0.2s;
+    }
+    .btn-gold:hover {
+      box-shadow: 0 0 50px rgba(201,168,76,0.65);
+      transform: translateY(-2px);
     }
 
-    .hero-stat-divider {
-      width: 1px;
-      background: var(--border);
-      align-self: stretch;
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: transparent;
+      color: var(--white);
+      padding: 1rem 2.2rem;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 2px solid var(--white);
+      position: relative;
+      transition: border-color 0.25s, color 0.25s, transform 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
     }
 
-    /* ─── SECTION BASICS ─── */
-    section {
-      padding: 7rem 5%;
+    /* ═══════════════════════════════════════════
+       TICKER
+    ═══════════════════════════════════════════ */
+    .ticker-wrap {
+      position: relative;
+      z-index: 2;
+      width: 100vw;
+      margin-left: calc(-6%);
+      overflow: hidden;
+      background: rgba(201,168,76,0.06);
+      border-top: 1px solid rgba(201,168,76,0.22);
+      border-bottom: 1px solid rgba(201,168,76,0.22);
+      padding: 0.85rem 0;
+      margin-top: 5rem;
     }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker-scroll 28s linear infinite;
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      padding: 0 2.5rem;
+      gap: 2.5rem;
+    }
+    .ticker-item::after {
+      content: '◆';
+      font-size: 0.5rem;
+      opacity: 0.5;
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTIONS — SHARED
+    ═══════════════════════════════════════════ */
+    section { padding: 110px 6%; }
 
     .section-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--gold);
       margin-bottom: 1.25rem;
     }
 
-    .section-label::before {
-      content: '';
-      display: block;
-      width: 24px;
+    .section-heading {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.75rem, 3.5vw, 2.9rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .gold-divider {
       height: 1px;
       background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.85s ease;
+      margin: 1.75rem 0;
     }
+    .gold-divider.visible { transform: scaleX(1); }
 
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-    }
+    /* ═══════════════════════════════════════════
+       THE PROBLEM
+    ═══════════════════════════════════════════ */
+    #problem { background: #000; }
 
-    .section-title .gradient {
-      background: linear-gradient(135deg, var(--accent2), #d4a8ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .section-desc {
-      color: var(--muted);
-      font-size: 1rem;
-      max-width: 560px;
-      line-height: 1.75;
-    }
-
-    /* ─── LOGOS / TRUST ─── */
-    #trust {
-      padding: 3rem 5%;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .trust-label {
+    .problem-header {
       text-align: center;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 2rem;
+      margin-bottom: 4.5rem;
     }
 
-    .logos-track {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3.5rem;
-      flex-wrap: wrap;
-      opacity: 0.45;
-    }
-
-    .logo-pill {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: var(--text);
-      white-space: nowrap;
-    }
-
-    /* ─── SERVICES ─── */
-    #services {
-      background: var(--bg2);
-      position: relative;
-      overflow: hidden;
-    }
-
-    #services::before {
-      content: '';
-      position: absolute;
-      top: -200px; right: -200px;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(123,94,167,0.08), transparent 70%);
-      pointer-events: none;
-    }
-
-    .services-header {
-      max-width: 600px;
-      margin-bottom: 4rem;
-    }
-
-    .services-grid {
+    .problem-cards {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1140px;
+      margin: 0 auto 3.5rem;
     }
 
-    .service-card {
-      background: var(--surface);
-      padding: 2.5rem;
+    .problem-card {
+      background: #070707;
+      border: 1px solid rgba(201,168,76,0.18);
+      padding: 2.75rem 2rem;
+      text-align: center;
       position: relative;
       overflow: hidden;
-      transition: background 0.3s;
+      transition: border-color 0.3s, transform 0.35s, box-shadow 0.35s;
     }
-
-    .service-card:hover { background: #161626; }
-
-    .service-card::after {
+    .problem-card::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(123,94,167,0.05), transparent);
+      background: radial-gradient(ellipse at 50% -10%, rgba(201,168,76,0.08), transparent 65%);
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.35s;
     }
-
-    .service-card:hover::after { opacity: 1; }
-
-    .service-icon {
-      width: 52px; height: 52px;
-      background: rgba(123,94,167,0.12);
-      border: 1px solid rgba(123,94,167,0.2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 1.5rem;
-      position: relative;
-      z-index: 1;
+    .problem-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-7px);
+      box-shadow: 0 24px 60px rgba(201,168,76,0.14);
     }
+    .problem-card:hover::before { opacity: 1; }
 
-    .service-card:nth-child(2) .service-icon { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.2); }
-    .service-card:nth-child(3) .service-icon { background: rgba(90,200,120,0.1); border-color: rgba(90,200,120,0.2); }
-    .service-card:nth-child(4) .service-icon { background: rgba(80,140,230,0.1); border-color: rgba(80,140,230,0.2); }
-    .service-card:nth-child(5) .service-icon { background: rgba(230,80,120,0.1); border-color: rgba(230,80,120,0.2); }
-
-    .service-card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .service-card p {
-      font-size: 0.875rem;
-      color: var(--muted);
-      line-height: 1.7;
-      position: relative;
-      z-index: 1;
-    }
-
-    .service-tag {
-      display: inline-block;
-      margin-top: 1.25rem;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent2);
-      background: rgba(123,94,167,0.1);
-      border: 1px solid rgba(123,94,167,0.2);
-      padding: 0.3rem 0.75rem;
-      border-radius: 100px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .service-card:nth-child(2) .service-tag { color: var(--gold); background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.2); }
-
-    /* ─── LIVE DEMO ─── */
-    #demo {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .demo-inner {
-      background: linear-gradient(135deg, rgba(123,94,167,0.12) 0%, rgba(5,5,8,0.8) 60%, rgba(201,168,76,0.06) 100%);
-      border: 1px solid rgba(123,94,167,0.2);
-      border-radius: 24px;
-      padding: 5rem 4rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .demo-inner::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 24px;
-      background: linear-gradient(135deg, rgba(123,94,167,0.4), transparent 40%, rgba(201,168,76,0.2) 100%);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude;
-      padding: 1px;
-      pointer-events: none;
-    }
-
-    .demo-ring {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(123,94,167,0.15);
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      animation: ring-pulse 3s ease-in-out infinite;
-    }
-
-    .demo-ring:nth-child(1) { width: 300px; height: 300px; animation-delay: 0s; }
-    .demo-ring:nth-child(2) { width: 500px; height: 500px; animation-delay: 0.6s; }
-    .demo-ring:nth-child(3) { width: 700px; height: 700px; animation-delay: 1.2s; }
-
-    @keyframes ring-pulse {
-      0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-      50% { opacity: 0.05; transform: translate(-50%, -50%) scale(1.05); }
-    }
-
-    .demo-phone-icon {
-      width: 72px; height: 72px;
-      background: linear-gradient(135deg, var(--accent), #5a3d85);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      margin: 0 auto 2rem;
-      position: relative;
-      box-shadow: 0 0 40px rgba(123,94,167,0.4);
-      animation: phone-pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes phone-pulse {
-      0%, 100% { box-shadow: 0 0 40px rgba(123,94,167,0.4); }
-      50% { box-shadow: 0 0 70px rgba(123,94,167,0.7); }
-    }
-
-    .demo-inner h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-      font-weight: 700;
-      letter-spacing: -0.025em;
+    .card-icon {
+      font-size: 2.2rem;
       margin-bottom: 1rem;
-      position: relative;
-    }
-
-    .demo-number {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
       display: block;
-      margin: 1.5rem auto;
-      letter-spacing: 0.05em;
-      position: relative;
     }
 
-    .demo-sub {
-      color: var(--muted);
-      font-size: 1rem;
-      max-width: 480px;
-      margin: 0 auto 2.5rem;
-      position: relative;
-    }
-
-    .demo-features {
-      display: flex;
-      gap: 2rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      position: relative;
-    }
-
-    .demo-feat {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .demo-feat .check {
-      color: #5ec87a;
-      font-size: 0.9rem;
-    }
-
-    /* ─── RESULTS ─── */
-    #results {
-      background: var(--bg3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    #results::after {
-      content: '';
-      position: absolute;
-      bottom: -200px; left: 50%;
-      transform: translateX(-50%);
-      width: 800px; height: 400px;
-      background: radial-gradient(ellipse, rgba(123,94,167,0.1), transparent 70%);
-      pointer-events: none;
-    }
-
-    .results-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      align-items: center;
-    }
-
-    .results-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem 1.75rem;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.3s, transform 0.3s;
-    }
-
-    .stat-card:hover {
-      border-color: rgba(123,94,167,0.3);
-      transform: translateY(-3px);
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .stat-card:hover::before { opacity: 1; }
-
-    .stat-num {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.5rem;
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: -0.03em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 0.9rem;
+    }
+
+    .card-stat {
+      font-family: 'Cinzel', serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--gold);
       line-height: 1;
-      background: linear-gradient(135deg, #fff, var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.9rem;
+      letter-spacing: -0.01em;
     }
 
-    .stat-card:nth-child(2) .stat-num,
-    .stat-card:nth-child(4) .stat-num {
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      -webkit-background-clip: text;
-      background-clip: text;
+    .card-stat-text {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1.3;
+      margin-bottom: 0.9rem;
     }
 
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.5;
+    .card-body {
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.58);
+      line-height: 1.75;
     }
 
-    .results-text .section-desc {
-      margin-bottom: 2rem;
-    }
-
-    .result-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .result-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.875rem;
-      font-size: 0.9rem;
-      color: var(--muted);
+    .problem-footer {
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      max-width: 760px;
+      margin: 0 auto;
       line-height: 1.6;
     }
 
-    .result-list li::before {
-      content: '▸';
-      color: var(--accent2);
-      flex-shrink: 0;
-      margin-top: 0.1rem;
-    }
+    /* ═══════════════════════════════════════════
+       WHAT THIS MEANS
+    ═══════════════════════════════════════════ */
+    #means { background: #000; }
 
-    /* ─── DASHBOARD PREVIEW ─── */
-    #dashboard {
-      padding: 7rem 5%;
-    }
-
-    .dash-header {
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto 4rem;
-    }
-
-    .dash-header .section-label { justify-content: center; }
-
-    .dashboard-mockup {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
-      max-width: 1000px;
+    .means-inner {
+      max-width: 720px;
       margin: 0 auto;
-      position: relative;
+      text-align: center;
     }
 
-    .dash-topbar {
-      background: rgba(10,10,16,0.9);
-      padding: 1rem 1.5rem;
+    .means-list {
+      list-style: none;
+      margin: 2.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .means-list li {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--white);
       display: flex;
       align-items: center;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border);
+      gap: 1.1rem;
+      text-align: left;
+      padding: 1.25rem 1.75rem;
+      background: #070707;
+      border: 1px solid rgba(201,168,76,0.15);
+      letter-spacing: 0.03em;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .means-list li:hover {
+      border-color: rgba(201,168,76,0.45);
+      background: rgba(201,168,76,0.03);
     }
 
-    .dash-dots { display: flex; gap: 6px; }
-    .dash-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dash-dot:nth-child(1) { background: #ff5f57; }
-    .dash-dot:nth-child(2) { background: #febc2e; }
-    .dash-dot:nth-child(3) { background: #28c840; }
+    .means-list .check {
+      color: var(--gold);
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
 
-    .dash-url {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.4rem 1rem;
-      font-size: 0.75rem;
-      color: var(--muted);
+    .means-closing {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      margin-top: 1.5rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       THE SOLUTION
+    ═══════════════════════════════════════════ */
+    #services { background: #000; }
+
+    .solution-header {
       text-align: center;
-      max-width: 320px;
+      margin-bottom: 4rem;
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
-    .dash-body {
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      min-height: 380px;
+    .solution-card {
+      background: #070707;
+      border: 1px solid rgba(201,168,76,0.18);
+      padding: 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.35s, box-shadow 0.35s;
+    }
+    .solution-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-7px);
+      box-shadow: 0 24px 60px rgba(201,168,76,0.14);
     }
 
-    .dash-sidebar {
-      background: rgba(8,8,14,0.9);
-      border-right: 1px solid var(--border);
-      padding: 1.5rem 1rem;
+    .card-spotlight {
+      position: absolute;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(201,168,76,0.1), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s;
     }
+    .solution-card:hover .card-spotlight { opacity: 1; }
 
-    .dash-sidebar-title {
+    .sol-label {
       font-size: 0.65rem;
-      letter-spacing: 0.12em;
+      font-weight: 700;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: var(--muted);
-      padding: 0 0.5rem;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .sol-heading {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.3;
+      margin-bottom: 0.4rem;
+    }
+
+    .sol-subheading {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      color: var(--gold);
+      font-style: italic;
       margin-bottom: 0.75rem;
     }
 
-    .dash-nav-item {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.55rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 0.25rem;
-      cursor: default;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .dash-nav-item.active {
-      background: rgba(123,94,167,0.15);
-      color: var(--accent2);
-    }
-
-    .dash-nav-item .icon { font-size: 0.9rem; }
-
-    .dash-main {
-      padding: 1.5rem;
-    }
-
-    .dash-metrics {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
+    .sol-body {
+      font-size: 0.87rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.82;
       margin-bottom: 1.5rem;
     }
 
-    .dash-metric {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem;
-    }
-
-    .dash-metric .m-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
-    .dash-metric .m-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; }
-    .dash-metric .m-change { font-size: 0.65rem; color: #5ec87a; margin-top: 0.25rem; }
-
-    .dash-chart {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      height: 160px;
+    .sol-list {
+      list-style: none;
       display: flex;
       flex-direction: column;
+      gap: 1.1rem;
     }
 
-    .dash-chart-title { font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; font-weight: 500; }
-
-    .chart-bars {
+    .sol-list li {
       display: flex;
-      align-items: flex-end;
-      gap: 6px;
-      flex: 1;
+      align-items: flex-start;
+      gap: 0.9rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.65;
     }
 
-    .bar {
-      flex: 1;
-      border-radius: 4px 4px 0 0;
-      background: linear-gradient(180deg, var(--accent), rgba(123,94,167,0.3));
-      transition: opacity 0.2s;
-    }
-
-    .bar:nth-child(even) { background: linear-gradient(180deg, var(--gold), rgba(201,168,76,0.3)); }
-
-    /* ─── PROCESS ─── */
-    #process {
-      background: var(--bg2);
-      position: relative;
-    }
-
-    .process-header {
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto 5rem;
-    }
-
-    .process-header .section-label { justify-content: center; }
-
-    .process-steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0;
-      position: relative;
-    }
-
-    .process-steps::before {
-      content: '';
-      position: absolute;
-      top: 28px;
-      left: 12%;
-      right: 12%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), var(--border), transparent);
-    }
-
-    .process-step {
-      text-align: center;
-      padding: 0 1.5rem;
-      position: relative;
-    }
-
-    .step-num {
-      width: 56px; height: 56px;
-      background: var(--surface);
-      border: 1px solid rgba(123,94,167,0.3);
-      border-radius: 50%;
+    .sol-num {
+      background: var(--gold);
+      color: var(--black);
+      min-width: 22px;
+      height: 22px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .sol-item-title {
       font-weight: 700;
-      color: var(--accent2);
-      margin: 0 auto 1.5rem;
-      position: relative;
-      z-index: 1;
-      background: linear-gradient(135deg, rgba(123,94,167,0.15), rgba(5,5,8,0.9));
+      color: var(--white);
     }
 
-    .process-step h4 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
+    .sol-bold {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.05em;
+      margin-top: 1.5rem;
     }
 
-    .process-step p {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
+    /* ═══════════════════════════════════════════
+       CONTACT
+    ═══════════════════════════════════════════ */
+    #contact { background: #000; }
 
-    /* ─── CONTACT ─── */
-    #contact {
-      position: relative;
-      overflow: hidden;
-    }
-
-    #contact::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 50%; transform: translateX(-50%);
-      width: 900px; height: 400px;
-      background: radial-gradient(ellipse, rgba(123,94,167,0.08), transparent 70%);
-      pointer-events: none;
-    }
-
-    .contact-layout {
+    .contact-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
+      grid-template-columns: 1fr 1.45fr;
+      gap: 5.5rem;
+      max-width: 1120px;
+      margin: 0 auto;
       align-items: start;
     }
 
-    .contact-info .section-desc { margin-bottom: 2.5rem; }
+    .contact-heading {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.9rem, 3.5vw, 2.9rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .contact-heading .gold-italic {
+      color: var(--gold);
+      font-style: italic;
+    }
+
+    .contact-body {
+      font-size: 0.93rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.85;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.03em;
+    }
+
+    .contact-details {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
 
     .contact-detail {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
+      gap: 0.85rem;
       font-size: 0.9rem;
+      letter-spacing: 0.03em;
     }
+    .contact-detail .ci { color: var(--gold); flex-shrink: 0; }
+    .contact-detail a { color: var(--white); text-decoration: none; transition: color 0.2s; }
+    .contact-detail a:hover { color: var(--gold); }
 
-    .contact-detail .cd-icon {
-      width: 40px; height: 40px;
-      background: rgba(123,94,167,0.1);
-      border: 1px solid rgba(123,94,167,0.2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-
-    .contact-detail .cd-text strong { display: block; font-weight: 600; margin-bottom: 0.1rem; }
-    .contact-detail .cd-text span { color: var(--muted); font-size: 0.8rem; }
-
+    /* Form */
     .contact-form {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2.5rem;
+      background: #070707;
+      border: 1px solid rgba(201,168,76,0.22);
+      padding: 2.75rem;
     }
 
     .form-row {
@@ -1015,17 +689,15 @@
       gap: 1rem;
     }
 
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
+    .form-group { margin-bottom: 1.3rem; }
 
     .form-group label {
       display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: rgba(255,255,255,0.45);
       margin-bottom: 0.5rem;
     }
 
@@ -1033,63 +705,63 @@
     .form-group select,
     .form-group textarea {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      color: var(--text);
-      font-family: inherit;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(201,168,76,0.18);
+      color: var(--white);
+      padding: 0.8rem 1rem;
+      font-family: 'Josefin Sans', sans-serif;
       font-size: 0.9rem;
+      font-weight: 300;
       outline: none;
       transition: border-color 0.2s, background 0.2s;
       -webkit-appearance: none;
     }
-
-    .form-group select option { background: #1a1a2e; }
-
+    .form-group select { cursor: none; }
+    .form-group select option { background: #111; color: var(--white); }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.22); }
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: rgba(123,94,167,0.5);
-      background: rgba(123,94,167,0.05);
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.04);
     }
-
-    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-group textarea { resize: vertical; min-height: 115px; }
 
     .form-submit {
       width: 100%;
-      background: linear-gradient(135deg, var(--accent), #5a3d85);
-      color: #fff;
+      background: var(--gold);
+      color: var(--black);
+      padding: 1.05rem 2rem;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       border: none;
-      padding: 1rem;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 0 30px rgba(123,94,167,0.2);
+      transition: box-shadow 0.3s, transform 0.2s, opacity 0.2s, background 0.3s;
     }
-
     .form-submit:hover {
-      opacity: 0.9;
+      box-shadow: 0 0 50px rgba(201,168,76,0.55);
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(123,94,167,0.4);
     }
+    .form-submit:disabled { opacity: 0.7; }
 
     .form-note {
       text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted);
+      font-size: 0.74rem;
+      color: rgba(255,255,255,0.3);
       margin-top: 1rem;
+      letter-spacing: 0.05em;
     }
 
-    /* ─── FOOTER ─── */
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
     footer {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      padding: 3rem 5%;
+      background: #000;
+      border-top: 1px solid rgba(201,168,76,0.18);
+      padding: 2.5rem 6%;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1098,405 +770,313 @@
     }
 
     .footer-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
       font-weight: 700;
-      color: #ffffff;
+      letter-spacing: 0.22em;
     }
-
-    .footer-logo span {
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .footer-copy {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
+    .footer-logo .von     { color: var(--gold); }
+    .footer-logo .systems { color: var(--white); }
 
     .footer-links {
       display: flex;
       gap: 2rem;
       list-style: none;
     }
-
     .footer-links a {
       font-size: 0.78rem;
-      color: var(--muted);
+      color: rgba(255,255,255,0.45);
       text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       transition: color 0.2s;
     }
+    .footer-links a:hover { color: var(--gold); }
 
-    .footer-links a:hover { color: var(--text); }
-
-    /* ─── SCROLL ANIMATIONS ─── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
+    .footer-copy {
+      font-size: 0.73rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.05em;
+      text-align: right;
+      line-height: 1.6;
     }
 
+    /* ═══════════════════════════════════════════
+       SCROLL REVEAL
+    ═══════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(42px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
     .reveal.visible {
       opacity: 1;
       transform: translateY(0);
     }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
 
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 960px) {
+      .problem-cards  { grid-template-columns: 1fr; max-width: 520px; }
+      .solution-grid  { grid-template-columns: 1fr; max-width: 580px; margin: 0 auto; }
+      .contact-grid   { grid-template-columns: 1fr; gap: 3rem; }
+    }
 
-    /* counter animation */
-    .count-up { transition: all 0.05s; }
-
-    /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
-      nav { padding: 0 4%; }
-      .nav-links { display: none; }
+      .nav-links    { display: none; }
+      .nav-hamburger { display: flex; }
 
-      .hero-stats { gap: 1.5rem; }
-      .hero-stat-divider { display: none; }
-
-      .results-layout,
-      .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 72px; left: 0; right: 0;
+        background: rgba(0,0,0,0.97);
+        padding: 2rem 6%;
+        gap: 1.75rem;
+        border-bottom: 1px solid rgba(201,168,76,0.2);
+      }
 
       .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .footer-copy { text-align: left; }
+    }
 
-      .dash-body { grid-template-columns: 1fr; }
-      .dash-sidebar { display: none; }
-      .dash-metrics { grid-template-columns: 1fr 1fr; }
-
-      .process-steps::before { display: none; }
-      .process-steps { gap: 2rem; }
-
-      section { padding: 5rem 4%; }
-
-      footer { flex-direction: column; text-align: center; }
-      .footer-links { justify-content: center; }
+    @media (max-width: 520px) {
+      .hero-buttons { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
 
-<!-- ─── NAV ─── -->
-<nav>
-  <div class="nav-logo"><img src="logo.svg" alt="Soulflow icon" class="nav-logo-icon"><span>Soul<span class="nav-gold">flow</span></span></div>
-  <ul class="nav-links">
+<!-- ── CURSOR ──────────────────────────────── -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- ── NAV ────────────────────────────────── -->
+<nav id="navbar">
+  <a class="nav-logo" href="#">
+    <span class="von">VON</span><span class="systems">&nbsp;SYSTEMS</span>
+  </a>
+  <ul class="nav-links" id="navLinks">
     <li><a href="#services">Services</a></li>
-    <li><a href="#demo">Live Demo</a></li>
-    <li><a href="#results">Results</a></li>
-    <li><a href="#dashboard">Dashboard</a></li>
-    <li><a href="#contact" class="nav-cta">Get Started</a></li>
+    <li><a href="#problem">The Problem</a></li>
+    <li><a href="#services">Solution</a></li>
+    <li><a href="#contact">Contact</a></li>
   </ul>
+  <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
 
-<!-- ─── HERO ─── -->
+<!-- ── HERO ───────────────────────────────── -->
 <section id="hero">
-  <div class="hero-bg"></div>
+  <canvas id="hero-canvas"></canvas>
   <div class="hero-grid"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+  <div class="hero-radial"></div>
 
-  <div class="hero-badge" style="position:relative;">
-    <span class="badge-dot"></span>
-    AI-Powered Business Growth — Now Live
+  <div class="hero-content reveal">
+    <div id="hero-tilt">
+      <h1 class="hero-headline">
+        Your Business.
+        <span class="gold-line">Running Itself.</span>
+      </h1>
+      <p class="hero-sub">
+        AI answers your calls, books your jobs, and follows up&nbsp;—&nbsp;without you lifting a finger.
+      </p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn-gold magnetic">&#9654;&nbsp; Start Growing Now</a>
+        <a href="tel:+18135366222" class="btn-outline magnetic">&#9990;&nbsp; Hear Our AI Live</a>
+      </div>
+    </div>
   </div>
 
-  <h1 class="hero">
-    We Run Your Growth.<br />
-    <span class="line-accent">You Run Your Business.</span>
-  </h1>
+  <!-- Infinite Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack">
+      <span class="ticker-item">AI Receptionist</span>
+      <span class="ticker-item">Lead Automation</span>
+      <span class="ticker-item">Meta Ads</span>
+      <span class="ticker-item">CRM Integration</span>
+      <span class="ticker-item">24/7 Coverage</span>
+      <span class="ticker-item">Tampa Bay</span>
+      <span class="ticker-item">AI Receptionist</span>
+      <span class="ticker-item">Lead Automation</span>
+      <span class="ticker-item">Meta Ads</span>
+      <span class="ticker-item">CRM Integration</span>
+      <span class="ticker-item">24/7 Coverage</span>
+      <span class="ticker-item">Tampa Bay</span>
+    </div>
+  </div>
+</section>
 
-  <p class="hero-sub">
-    Soulflow deploys intelligent AI systems that handle your leads, automate your workflows, and scale your revenue — 24 hours a day, without you lifting a finger.
+<!-- ── THE PROBLEM ────────────────────────── -->
+<section id="problem">
+  <div class="problem-header">
+    <div class="section-label reveal">The Reality?</div>
+    <h2 class="section-heading reveal">The Problem With<br>Your Business Right Now</h2>
+  </div>
+
+  <div class="problem-cards">
+    <div class="problem-card reveal reveal-d1">
+      <span class="card-icon">📞</span>
+      <div class="card-title">MISSED CALLS?</div>
+      <div class="card-stat" data-count="40" data-suffix="%">0%</div>
+      <div class="card-body">of inbound leads call after business hours or on weekends</div>
+    </div>
+    <div class="problem-card reveal reveal-d2">
+      <span class="card-icon">💵</span>
+      <div class="card-title">STAFF COST?</div>
+      <div class="card-stat" data-count="3000" data-prefix="$" data-suffix="+">$0</div>
+      <div class="card-body">per month to hire someone just to answer phones</div>
+    </div>
+    <div class="problem-card reveal reveal-d3">
+      <span class="card-icon">📈</span>
+      <div class="card-title">GETTING BEAT?</div>
+      <div class="card-stat-text">By Automated<br>Competitors</div>
+      <div class="card-body">By automated competitors who respond instantly. While you're losing leads after hours, they're booking more jobs.</div>
+    </div>
+  </div>
+
+  <div class="gold-divider reveal" style="max-width:1140px;margin:0 auto 2.5rem;"></div>
+
+  <p class="problem-footer reveal">
+    THEIR SYSTEM IS RUNNING 24/7 ON AUTOPILOT. WHAT ABOUT YOURS?
   </p>
+</section>
 
-  <div class="hero-cta-group">
-    <a href="#contact" class="btn-primary">
-      &#9654; Start Growing Now
-    </a>
-    <a href="#demo" class="btn-secondary">
-      &#9742; Hear Our AI Live
-    </a>
-  </div>
+<!-- ── WHAT THIS MEANS FOR YOU ────────────── -->
+<section id="means">
+  <div class="means-inner">
+    <div class="section-label reveal">For You</div>
+    <h2 class="section-heading reveal">What This Means For You</h2>
 
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="num count-up" data-target="340">0</div>
-      <div class="label">Avg. Lead Increase %</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="num count-up" data-target="24">0</div>
-      <div class="label">Hour AI Coverage</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="num count-up" data-target="98">0</div>
-      <div class="label">Client Retention %</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="num count-up" data-target="3">0</div>
-      <div class="label">Days to Deploy</div>
-    </div>
+    <ul class="means-list">
+      <li class="reveal reveal-d1"><span class="check">✓</span> Never miss another call or lead</li>
+      <li class="reveal reveal-d2"><span class="check">✓</span> Book more jobs without hiring staff</li>
+      <li class="reveal reveal-d3"><span class="check">✓</span> Follow up instantly, every time</li>
+      <li class="reveal reveal-d4"><span class="check">✓</span> Turn marketing into real revenue</li>
+    </ul>
+
+    <div class="gold-divider reveal"></div>
+    <p class="means-closing reveal">This is a system that runs your business.</p>
   </div>
 </section>
 
-<!-- ─── TRUST BAR ─── -->
-<div id="trust">
-  <p class="trust-label">Trusted by growth-focused businesses across the US</p>
-  <div class="logos-track">
-    <span class="logo-pill">ROOFING PRO</span>
-    <span class="logo-pill">MEDISPA ELITE</span>
-    <span class="logo-pill">LAWFIRM360</span>
-    <span class="logo-pill">SOLAR NEXUS</span>
-    <span class="logo-pill">DENTAL PLUS</span>
-    <span class="logo-pill">REALTY GROUP</span>
-    <span class="logo-pill">AUTO SHIELD</span>
-  </div>
-</div>
-
-<!-- ─── SERVICES ─── -->
+<!-- ── THE SOLUTION ───────────────────────── -->
 <section id="services">
-  <div class="services-header reveal">
-    <div class="section-label">What We Do</div>
-    <h2 class="section-title">Full-Stack Growth<br /><span class="gradient">Engineered for You</span></h2>
-    <p class="section-desc">We don't offer a tool — we build and manage your entire growth engine so you can focus on what you do best.</p>
+  <div class="solution-header">
+    <div class="section-label reveal">Our Services</div>
+    <h2 class="section-heading reveal" style="max-width:680px;margin:0 auto;">
+      The System That Changes Everything
+    </h2>
   </div>
 
-  <div class="services-grid">
-    <div class="service-card reveal">
-      <div class="service-icon">&#129302;</div>
-      <h3>AI Receptionist</h3>
-      <p>A human-sounding AI that answers every call instantly, qualifies leads, books appointments, and handles FAQs — 24/7, never misses a call.</p>
-      <span class="service-tag">Always On</span>
+  <div class="solution-grid">
+    <!-- Card 1 -->
+    <div class="solution-card reveal reveal-d1">
+      <div class="card-spotlight"></div>
+      <div class="sol-label">The Solution</div>
+      <div class="sol-heading">Full AI automation,<br>built for you.</div>
+      <div class="gold-divider"></div>
+      <div class="sol-body">We don't sell software. We install a complete, working AI system — configured to your business, tested, and live in two weeks.</div>
+      <ul class="sol-list">
+        <li>
+          <div class="sol-num">1</div>
+          <div><span class="sol-item-title">24/7 AI Receptionist —</span> Every call answered. Every lead qualified. Appointments booked automatically — day or night, weekend or holiday.</div>
+        </li>
+        <li>
+          <div class="sol-num">2</div>
+          <div><span class="sol-item-title">Smart CRM &amp; Follow-Up —</span> Every call logged. Every lead tracked. Automated follow-ups go out instantly — text, email, reminders.</div>
+        </li>
+        <li>
+          <div class="sol-num">3</div>
+          <div><span class="sol-item-title">Ads That Feed the System —</span> Done-for-you campaigns bring qualified leads straight into your AI system. More calls. More bookings.</div>
+        </li>
+      </ul>
     </div>
 
-    <div class="service-card reveal reveal-delay-1">
-      <div class="service-icon">&#9889;</div>
-      <h3>Full Workflow Automation</h3>
-      <p>We map and automate your entire business pipeline — from intake forms and CRM updates to follow-up sequences and invoicing — saving you dozens of hours per week.</p>
-      <span class="service-tag" style="color:var(--gold); background:rgba(201,168,76,0.1); border-color:rgba(201,168,76,0.2)">High ROI</span>
+    <!-- Card 2 -->
+    <div class="solution-card reveal reveal-d2">
+      <div class="card-spotlight"></div>
+      <div class="sol-label">Conversion System</div>
+      <div class="sol-heading">Lead Converter:</div>
+      <div class="sol-subheading">ALL INBOUND → CONVERTED.</div>
+      <div class="gold-divider"></div>
+      <ul class="sol-list">
+        <li><div class="sol-num">1</div><div>Post Content</div></li>
+        <li><div class="sol-num">2</div><div>Survey Reviews</div></li>
+        <li><div class="sol-num">3</div><div>Post Calls SMS</div></li>
+        <li><div class="sol-num">4</div><div>Outbound Text</div></li>
+      </ul>
+      <div class="gold-divider" style="margin-top:2rem;"></div>
+      <div class="sol-bold">DASHBOARD FULL!</div>
     </div>
 
-    <div class="service-card reveal reveal-delay-2">
-      <div class="service-icon">&#127919;</div>
-      <h3>Meta Ads Lead Generation</h3>
-      <p>Data-driven Facebook &amp; Instagram ad campaigns engineered to flood your pipeline with qualified, high-intent leads at the lowest possible cost per acquisition.</p>
-      <span class="service-tag" style="color:#5ec87a; background:rgba(90,200,120,0.1); border-color:rgba(90,200,120,0.2)">Paid Growth</span>
-    </div>
-
-    <div class="service-card reveal reveal-delay-3">
-      <div class="service-icon">&#128248;</div>
-      <h3>Social Media Management</h3>
-      <p>AI-assisted content creation, scheduling, and community management across all your platforms — consistently building your brand authority while you stay focused.</p>
-      <span class="service-tag" style="color:#5090e6; background:rgba(80,140,230,0.1); border-color:rgba(80,140,230,0.2)">Brand Growth</span>
-    </div>
-
-  </div>
-</section>
-
-<!-- ─── LIVE DEMO ─── -->
-<section id="demo">
-  <div class="demo-inner">
-    <div class="demo-ring"></div>
-    <div class="demo-ring"></div>
-    <div class="demo-ring"></div>
-    <div class="demo-phone-icon">&#9742;</div>
-    <div class="section-label" style="justify-content:center; position:relative;">Live AI Demo</div>
-    <h2>Experience Our AI Receptionist<br />in Real Time</h2>
-    <p class="demo-sub" style="position:relative;">Pick up your phone and call the number below. You'll hear our AI handle the call exactly the way it would for your business — natural, intelligent, and always available.</p>
-    <a href="tel:+18135366222" class="demo-number">(813) 536-6222</a>
-    <div class="demo-features">
-      <span class="demo-feat"><span class="check">&#10003;</span> Natural conversation</span>
-      <span class="demo-feat"><span class="check">&#10003;</span> Lead qualification</span>
-      <span class="demo-feat"><span class="check">&#10003;</span> Appointment booking</span>
-      <span class="demo-feat"><span class="check">&#10003;</span> Instant response</span>
-    </div>
-  </div>
-</section>
-
-<!-- ─── RESULTS ─── -->
-<section id="results">
-  <div class="results-layout">
-    <div class="results-stats reveal">
-      <div class="stat-card">
-        <div class="stat-num count-up-2" data-target="340">0%</div>
-        <div class="stat-label">Average increase in qualified leads within 90 days</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num count-up-2" data-target="60">0%</div>
-        <div class="stat-label">Reduction in missed calls and missed opportunities</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num count-up-2" data-target="12">0x</div>
-        <div class="stat-label">Average return on ad spend for our Meta campaigns</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num count-up-2" data-target="30">0+</div>
-        <div class="stat-label">Hours per week saved through workflow automation</div>
-      </div>
-    </div>
-
-    <div class="results-text reveal reveal-delay-2">
-      <div class="section-label">Proven Results</div>
-      <h2 class="section-title">Numbers That<br /><span class="gradient">Speak for Themselves</span></h2>
-      <p class="section-desc">Every system we build is engineered for one outcome: measurable revenue growth. Here's what our clients experience.</p>
-      <ul class="result-list">
-        <li>AI receptionist books appointments while you sleep, eliminating revenue lost to missed calls.</li>
-        <li>Meta ad campaigns managed and optimized daily by our growth specialists and AI tools.</li>
-        <li>Automated follow-up sequences that contact leads within 60 seconds — before your competitors do.</li>
-        <li>Full reporting dashboard so you always know exactly what your investment is producing.</li>
-        <li>Dedicated account manager and quarterly strategy calls included in every plan.</li>
+    <!-- Card 3 -->
+    <div class="solution-card reveal reveal-d3">
+      <div class="card-spotlight"></div>
+      <div class="sol-label">Demand Engine</div>
+      <div class="sol-heading">AD BLASTER</div>
+      <div class="gold-divider"></div>
+      <ul class="sol-list">
+        <li>
+          <div class="sol-num">1</div>
+          <div><span class="sol-item-title">Outbound Calls &amp; AI Call Backs —</span> Never let a lead go cold. We follow up instantly — automatically.</div>
+        </li>
+        <li>
+          <div class="sol-num">2</div>
+          <div><span class="sol-item-title">Meta Ad Management —</span> Campaigns built, tested, and optimized for consistent lead flow.</div>
+        </li>
+        <li>
+          <div class="sol-num">3</div>
+          <div><span class="sol-item-title">Social Media Manager —</span> Content scheduled, posted, and working daily to attract attention.</div>
+        </li>
+        <li>
+          <div class="sol-num">4</div>
+          <div><span class="sol-item-title">Full Content Creation —</span> We create everything — ads, posts, messaging — done for you.</div>
+        </li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- ─── DASHBOARD PREVIEW ─── -->
-<section id="dashboard">
-  <div class="dash-header reveal">
-    <div class="section-label">Client Dashboard</div>
-    <h2 class="section-title">Your Growth at a<br /><span class="gradient">Glance — Always</span></h2>
-    <p class="section-desc" style="margin:0 auto;">Every client gets access to a live dashboard showing every lead, call, campaign, and conversion in real time.</p>
-  </div>
-
-  <div class="dashboard-mockup reveal">
-    <div class="dash-topbar">
-      <div class="dash-dots">
-        <div class="dash-dot"></div>
-        <div class="dash-dot"></div>
-        <div class="dash-dot"></div>
-      </div>
-      <div class="dash-url">app.soulflow.ai/dashboard</div>
-    </div>
-    <div class="dash-body">
-      <div class="dash-sidebar">
-        <div class="dash-sidebar-title">Main Menu</div>
-        <div class="dash-nav-item active"><span class="icon">&#128202;</span> Overview</div>
-        <div class="dash-nav-item"><span class="icon">&#128222;</span> AI Calls</div>
-        <div class="dash-nav-item"><span class="icon">&#127919;</span> Ad Campaigns</div>
-        <div class="dash-nav-item"><span class="icon">&#128101;</span> Leads CRM</div>
-        <div class="dash-nav-item"><span class="icon">&#128248;</span> Social</div>
-        <div class="dash-nav-item"><span class="icon">&#9881;</span> Settings</div>
-      </div>
-      <div class="dash-main">
-        <div class="dash-metrics">
-          <div class="dash-metric">
-            <div class="m-label">New Leads</div>
-            <div class="m-value">142</div>
-            <div class="m-change">&#8593; +28% this week</div>
-          </div>
-          <div class="dash-metric">
-            <div class="m-label">AI Calls</div>
-            <div class="m-value">87</div>
-            <div class="m-change">&#8593; +14% vs last</div>
-          </div>
-          <div class="dash-metric">
-            <div class="m-label">Booked Appts</div>
-            <div class="m-value">34</div>
-            <div class="m-change" style="color:#f0d080;">&#8593; 39% close rate</div>
-          </div>
-          <div class="dash-metric">
-            <div class="m-label">Ad ROAS</div>
-            <div class="m-value">11.4x</div>
-            <div class="m-change">&#8593; +2.1x vs avg</div>
-          </div>
-        </div>
-        <div class="dash-chart">
-          <div class="dash-chart-title">Lead Volume — Last 14 Days</div>
-          <div class="chart-bars">
-            <div class="bar" style="height:40%"></div>
-            <div class="bar" style="height:55%"></div>
-            <div class="bar" style="height:45%"></div>
-            <div class="bar" style="height:70%"></div>
-            <div class="bar" style="height:60%"></div>
-            <div class="bar" style="height:80%"></div>
-            <div class="bar" style="height:65%"></div>
-            <div class="bar" style="height:90%"></div>
-            <div class="bar" style="height:75%"></div>
-            <div class="bar" style="height:85%"></div>
-            <div class="bar" style="height:95%"></div>
-            <div class="bar" style="height:82%"></div>
-            <div class="bar" style="height:100%"></div>
-            <div class="bar" style="height:92%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── PROCESS ─── -->
-<section id="process">
-  <div class="process-header reveal">
-    <div class="section-label">How It Works</div>
-    <h2 class="section-title">Live in <span class="gradient">72 Hours</span></h2>
-    <p class="section-desc" style="margin:0 auto;">We handle the entire setup. You sign on, we build, you grow.</p>
-  </div>
-
-  <div class="process-steps">
-    <div class="process-step reveal">
-      <div class="step-num">01</div>
-      <h4>Discovery Call</h4>
-      <p>We learn your business, goals, and current gaps to design the perfect growth system.</p>
-    </div>
-    <div class="process-step reveal reveal-delay-1">
-      <div class="step-num">02</div>
-      <h4>System Build</h4>
-      <p>Our team configures your AI receptionist, automations, ad campaigns, and dashboard.</p>
-    </div>
-    <div class="process-step reveal reveal-delay-2">
-      <div class="step-num">03</div>
-      <h4>Launch &amp; Test</h4>
-      <p>We go live, run thorough testing, and dial in every detail before fully deploying.</p>
-    </div>
-    <div class="process-step reveal reveal-delay-3">
-      <div class="step-num">04</div>
-      <h4>Grow &amp; Scale</h4>
-      <p>Sit back and watch the dashboard light up. We manage and optimize everything monthly.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ─── CONTACT ─── -->
+<!-- ── CONTACT ────────────────────────────── -->
 <section id="contact">
-  <div class="contact-layout">
-    <div class="contact-info reveal">
-      <div class="section-label">Contact Us</div>
-      <h2 class="section-title">Ready to<br /><span class="gradient">Ignite Your Growth?</span></h2>
-      <p class="section-desc">Fill out the form and a Soulflow strategist will reach out within one business day to discuss your custom growth plan.</p>
+  <div class="contact-grid">
 
-      <div class="contact-detail">
-        <div class="cd-icon">&#9742;</div>
-        <div class="cd-text">
-          <strong>(813) 536-6222</strong>
-          <span>Call or text — or call to hear our AI</span>
+    <!-- Left -->
+    <div>
+      <div class="section-label reveal">Get Started</div>
+      <h2 class="contact-heading reveal">
+        Ready to<br><span class="gold-italic">Ignite</span><br>Your Growth?
+      </h2>
+      <p class="contact-body reveal">
+        Fill out the form and a VON Systems strategist will reach out within one business day.
+      </p>
+      <div class="contact-details reveal reveal-d2">
+        <div class="contact-detail">
+          <span class="ci">📞</span>
+          <a href="tel:+18135366222">(813) 536-6222</a>
         </div>
-      </div>
-
-      <div class="contact-detail">
-        <div class="cd-icon">&#9993;</div>
-        <div class="cd-text">
-          <strong>hello@soulflow.ai</strong>
-          <span>We respond within 4 business hours</span>
+        <div class="contact-detail">
+          <span class="ci">✉</span>
+          <a href="mailto:hello@vonsystems.ai">hello@vonsystems.ai</a>
         </div>
-      </div>
-
-      <div class="contact-detail">
-        <div class="cd-icon">&#128205;</div>
-        <div class="cd-text">
-          <strong>Tampa, Florida</strong>
-          <span>Serving clients nationwide</span>
+        <div class="contact-detail">
+          <span class="ci">📍</span>
+          <span>Tampa, Florida</span>
         </div>
       </div>
     </div>
 
-    <div class="contact-form reveal reveal-delay-2">
+    <!-- Right — form with preserved submission logic -->
+    <div class="contact-form reveal reveal-d2">
       <form id="contactForm" onsubmit="handleSubmit(event)">
         <div class="form-row">
           <div class="form-group">
@@ -1508,204 +1088,291 @@
             <input type="text" name="last_name" placeholder="Smith" required />
           </div>
         </div>
-        <div class="form-group">
-          <label>Business Email</label>
-          <input type="email" name="email" placeholder="john@yourbusiness.com" required />
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" name="phone" placeholder="(555) 000-0000" />
+        <div class="form-row">
+          <div class="form-group">
+            <label>Business Email</label>
+            <input type="email" name="email" placeholder="john@company.com" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" name="phone" placeholder="(555) 000-0000" />
+          </div>
         </div>
         <div class="form-group">
           <label>Business Type</label>
-          <select name="industry">
+          <select name="industry" required>
             <option value="" disabled selected>Select your industry</option>
-            <option>Home Services (Roofing, HVAC, Plumbing…)</option>
-            <option>Medical / Dental / MedSpa</option>
-            <option>Legal / Professional Services</option>
+            <option>Home Services (Roofing, HVAC, Plumbing)</option>
+            <option>Medical/Dental/MedSpa</option>
+            <option>Legal/Professional Services</option>
             <option>Real Estate</option>
-            <option>Solar / Energy</option>
+            <option>Solar/Energy</option>
             <option>Automotive</option>
-            <option>Ecommerce / Retail</option>
+            <option>Ecommerce/Retail</option>
             <option>Other</option>
           </select>
         </div>
         <div class="form-group">
-          <label>What's Your Biggest Growth Challenge?</label>
-          <textarea name="message" placeholder="Tell us what's holding your business back from growing faster..."></textarea>
+          <label>Biggest Growth Challenge</label>
+          <textarea name="message" placeholder="Tell us what's holding your business back..."></textarea>
         </div>
-        <button type="submit" class="form-submit">
-          &#9654;&nbsp;&nbsp;Get My Free Growth Strategy
-        </button>
-        <p class="form-note">&#128274; No spam. No pressure. 100% confidential.</p>
+        <button type="submit" class="form-submit magnetic">&#9654;&nbsp;&nbsp;Get My Free Growth Strategy</button>
+        <p class="form-note">🔒 No spam. No pressure. 100% confidential.</p>
       </form>
     </div>
+
   </div>
 </section>
 
-<!-- ─── FOOTER ─── -->
+<!-- ── FOOTER ─────────────────────────────── -->
 <footer>
-  <div class="footer-logo">Soul<span>flow</span></div>
-  <p class="footer-copy">&copy; 2025 Soulflow AI. All rights reserved.</p>
+  <div class="footer-logo">
+    <span class="von">VON</span><span class="systems">&nbsp;SYSTEMS</span>
+  </div>
   <ul class="footer-links">
     <li><a href="#">Privacy Policy</a></li>
     <li><a href="#">Terms of Service</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
+  <div class="footer-copy">
+    © 2025 VON Systems · Tampa, FL<br>AI-Powered Business Automation
+  </div>
 </footer>
 
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
 <script>
-  // ─── SCROLL REVEAL ───
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12 });
+/* ── CURSOR ─────────────────────────────── */
+const cursorDot  = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let ringX = 0, ringY = 0;
 
-  reveals.forEach(el => observer.observe(el));
+document.addEventListener('mousemove', e => {
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top  = e.clientY + 'px';
+  cursorRing.style.left = e.clientX + 'px';
+  cursorRing.style.top  = e.clientY + 'px';
+});
 
-  // ─── COUNT UP HERO ───
-  function animateCountUp(el, target, suffix = '') {
-    let start = 0;
-    const duration = 2000;
-    const step = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) {
-        start = target;
-        clearInterval(timer);
-      }
-      el.textContent = Math.floor(start) + suffix;
-    }, 16);
+/* ── THREE.JS PARTICLE FIELD ────────────── */
+(function initParticles() {
+  if (typeof THREE === 'undefined') return;
+  const canvas   = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+  camera.position.z = 90;
+
+  const COUNT = 220;
+  const pos   = new Float32Array(COUNT * 3);
+  const vel   = new Float32Array(COUNT * 3);
+  for (let i = 0; i < COUNT; i++) {
+    pos[i*3]   = (Math.random() - 0.5) * 220;
+    pos[i*3+1] = (Math.random() - 0.5) * 180;
+    pos[i*3+2] = (Math.random() - 0.5) * 100;
+    vel[i*3]   = (Math.random() - 0.5) * 0.015;
+    vel[i*3+1] = (Math.random() - 0.5) * 0.015;
+    vel[i*3+2] = 0;
   }
 
-  // trigger hero counters on load
-  window.addEventListener('load', () => {
-    document.querySelectorAll('.count-up').forEach(el => {
-      const target = +el.dataset.target;
-      const suffix = el.closest('.hero-stat').querySelector('.label').textContent.includes('%') ? '%' : (target === 24 ? '/7' : (target === 3 ? ' Days' : '%'));
-      // simpler — just number
-      animateCountUp(el, target, '');
-    });
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: 0xc9a84c,
+    size: 0.55,
+    transparent: true,
+    opacity: 0.55,
+    sizeAttenuation: true,
   });
 
-  // ─── COUNT UP STATS (on scroll) ───
-  const statNums = document.querySelectorAll('.stat-num');
-  const statSuffixes = ['%', '%', 'x', '+'];
-  const statObserver = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        const el = e.target;
-        const target = +el.dataset.target;
-        const idx = Array.from(statNums).indexOf(el);
-        const suffix = statSuffixes[idx] || '';
-        animateCountUp(el, target, suffix);
-        statObserver.unobserve(el);
-      }
-    });
-  }, { threshold: 0.5 });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
 
-  statNums.forEach(el => statObserver.observe(el));
+  function resize() {
+    const hero = document.getElementById('hero');
+    const w = hero.offsetWidth, h = hero.offsetHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-  // ─── NAV SCROLL STYLE ───
-  const nav = document.querySelector('nav');
-  window.addEventListener('scroll', () => {
-    nav.style.background = window.scrollY > 40
-      ? 'rgba(5,5,8,0.92)'
-      : 'rgba(5,5,8,0.75)';
-  });
-
-  // ─── EMAILJS CONFIG ───────────────────────────────────────────────────────
-  // 1. Sign up free at https://www.emailjs.com/
-  // 2. Add a Gmail service  → copy the Service ID  → paste as EMAILJS_SERVICE_ID
-  // 3. Create a template    → copy the Template ID → paste as EMAILJS_TEMPLATE_ID
-  //    Template variables to use inside EmailJS:
-  //      {{first_name}}  {{last_name}}  {{email}}  {{phone}}  {{industry}}  {{message}}
-  //    Suggested subject:  🔥 New Lead from Soulflow Website
-  //    Suggested body:
-  //      NEW LEAD ALERT
-  //
-  //      Name:     {{first_name}} {{last_name}}
-  //      Phone:    {{phone}}
-  //      Industry: {{industry}}
-  //      Email:    {{email}}
-  //
-  //      Their biggest growth challenge:
-  //      "{{message}}"
-  //
-  //      ---
-  //      Submitted from soulflow website
-  // 4. Go to Account → API Keys → copy Public Key → paste as EMAILJS_PUBLIC_KEY
-  // ─────────────────────────────────────────────────────────────────────────
-  const EMAILJS_PUBLIC_KEY  = 'bAPUuyFxkGKmSAWo4';
-  const EMAILJS_SERVICE_ID  = 'service_1o2iix9';
-  const EMAILJS_TEMPLATE_ID = 'template_gyz4fqh';
-
-  // SDK v4 requires object initialisation
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-
-  // ─── FORM SUBMIT ───
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const form = e.target;
-    const btn  = form.querySelector('.form-submit');
-
-    // Loading state
-    btn.disabled = true;
-    btn.innerHTML = 'Sending&hellip;';
-    btn.style.opacity = '0.75';
-
-    // Exact variable names as defined in template_gyz4fqh
-    const params = {
-      name     : (form.first_name.value.trim() + ' ' + form.last_name.value.trim()).trim(),
-      email    : form.email.value.trim(),
-      phone    : form.phone.value.trim()   || 'Not provided',
-      industry : form.industry.value       || 'Not specified',
-      message  : form.message.value.trim() || 'Not provided',
-      time     : new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
-    };
-
-    console.log('EmailJS → sending with params:', params);
-    console.log('EmailJS → service:', EMAILJS_SERVICE_ID, '| template:', EMAILJS_TEMPLATE_ID);
-
-    try {
-      const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
-      console.log('EmailJS → success:', result.status, result.text);
-      // Success
-      btn.innerHTML = '&#10003;&nbsp; Sent! We\'ll be in touch soon.';
-      btn.style.background = 'linear-gradient(135deg, #2d8a50, #1e6035)';
-      btn.style.opacity    = '1';
-      btn.style.boxShadow  = '0 0 30px rgba(45,138,80,0.35)';
-      form.reset();
-    } catch (err) {
-      console.error('EmailJS → FAILED');
-      console.error('  status :', err.status);
-      console.error('  text   :', err.text);
-      console.error('  full   :', err);
-      // Reset to original state so they can retry
-      btn.innerHTML    = '&#9654;&nbsp;&nbsp;Get My Free Growth Strategy';
-      btn.style.opacity = '1';
-      btn.style.background = '';
-      btn.disabled     = false;
-      alert('Something went wrong sending your message.\nPlease call us directly at (813) 536-6222.');
+  function animate() {
+    requestAnimationFrame(animate);
+    const positions = geo.attributes.position.array;
+    for (let i = 0; i < COUNT; i++) {
+      positions[i*3]   += vel[i*3];
+      positions[i*3+1] += vel[i*3+1];
+      if (Math.abs(positions[i*3])   > 110) vel[i*3]   *= -1;
+      if (Math.abs(positions[i*3+1]) > 90)  vel[i*3+1] *= -1;
     }
+    geo.attributes.position.needsUpdate = true;
+    points.rotation.y += 0.0004;
+    renderer.render(scene, camera);
   }
+  animate();
+})();
 
-  // ─── SMOOTH ANCHOR OFFSET FOR FIXED NAV ───
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        const top = target.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
-    });
+/* ── HERO 3D TILT ───────────────────────── */
+const heroSection = document.getElementById('hero');
+const heroTilt    = document.getElementById('hero-tilt');
+
+heroSection.addEventListener('mousemove', e => {
+  const r  = heroSection.getBoundingClientRect();
+  const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+  const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+  heroTilt.style.transform = `rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
+});
+heroSection.addEventListener('mouseleave', () => {
+  heroTilt.style.transform = 'rotateX(0deg) rotateY(0deg)';
+});
+
+/* ── MAGNETIC BUTTONS ───────────────────── */
+document.querySelectorAll('.magnetic').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r  = el.getBoundingClientRect();
+    const dx = (e.clientX - r.left - r.width  / 2) * 0.28;
+    const dy = (e.clientY - r.top  - r.height / 2) * 0.28;
+    el.style.transform = `translate(${dx}px, ${dy}px)`;
   });
+  el.addEventListener('mouseleave', () => {
+    el.style.transform = '';
+  });
+});
+
+/* ── CARD SPOTLIGHT FOLLOW ──────────────── */
+document.querySelectorAll('.solution-card').forEach(card => {
+  const spot = card.querySelector('.card-spotlight');
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    spot.style.left = (e.clientX - r.left) + 'px';
+    spot.style.top  = (e.clientY - r.top)  + 'px';
+  });
+});
+
+/* ── NAV HIDE / SHOW ON SCROLL ──────────── */
+let lastScrollY = 0;
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  navbar.classList.toggle('nav-hidden', y > lastScrollY && y > 120);
+  lastScrollY = y;
+}, { passive: true });
+
+/* ── MOBILE MENU ────────────────────────── */
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+/* ── INTERSECTION OBSERVER ──────────────── */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('visible');
+
+    /* count-up numbers */
+    if (entry.target.dataset.count) {
+      animateCount(entry.target);
+    }
+
+    revealObserver.unobserve(entry.target);
+  });
+}, { threshold: 0.18 });
+
+document.querySelectorAll('.reveal, .gold-divider, [data-count]').forEach(el => {
+  revealObserver.observe(el);
+});
+
+function animateCount(el) {
+  const target   = parseInt(el.dataset.count, 10);
+  const prefix   = el.dataset.prefix || '';
+  const suffix   = el.dataset.suffix || '';
+  const duration = 1800;
+  const fps      = 60;
+  const steps    = duration / (1000 / fps);
+  let   current  = 0;
+
+  const timer = setInterval(() => {
+    current = Math.min(current + target / steps, target);
+    el.textContent = prefix + Math.floor(current).toLocaleString() + suffix;
+    if (current >= target) clearInterval(timer);
+  }, 1000 / fps);
+}
+
+/* ── SMOOTH ANCHOR SCROLL ───────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      document.getElementById('navLinks').classList.remove('open');
+      const top = target.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+/* ═══════════════════════════════════════════
+   EMAILJS — PRESERVED EXACTLY AS-IS
+═══════════════════════════════════════════ */
+const EMAILJS_PUBLIC_KEY  = 'bAPUuyFxkGKmSAWo4';
+const EMAILJS_SERVICE_ID  = 'service_1o2iix9';
+const EMAILJS_TEMPLATE_ID = 'template_gyz4fqh';
+
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn  = form.querySelector('.form-submit');
+
+  // Loading state
+  btn.disabled = true;
+  btn.innerHTML = 'Sending&hellip;';
+  btn.style.opacity = '0.75';
+
+  // Exact variable names as defined in template_gyz4fqh
+  const params = {
+    name     : (form.first_name.value.trim() + ' ' + form.last_name.value.trim()).trim(),
+    email    : form.email.value.trim(),
+    phone    : form.phone.value.trim()   || 'Not provided',
+    industry : form.industry.value       || 'Not specified',
+    message  : form.message.value.trim() || 'Not provided',
+    time     : new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+  };
+
+  console.log('EmailJS → sending with params:', params);
+  console.log('EmailJS → service:', EMAILJS_SERVICE_ID, '| template:', EMAILJS_TEMPLATE_ID);
+
+  try {
+    const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    console.log('EmailJS → success:', result.status, result.text);
+    // Success
+    btn.innerHTML = '&#10003;&nbsp; Sent! We\'ll be in touch soon.';
+    btn.style.background = 'linear-gradient(135deg, #2d8a50, #1e6035)';
+    btn.style.color      = '#fff';
+    btn.style.opacity    = '1';
+    btn.style.boxShadow  = '0 0 30px rgba(45,138,80,0.35)';
+    form.reset();
+  } catch (err) {
+    console.error('EmailJS → FAILED');
+    console.error('  status :', err.status);
+    console.error('  text   :', err.text);
+    console.error('  full   :', err);
+    // Reset to original state so they can retry
+    btn.innerHTML    = '&#9654;&nbsp;&nbsp;Get My Free Growth Strategy';
+    btn.style.opacity = '1';
+    btn.style.background = '';
+    btn.style.color  = '';
+    btn.disabled     = false;
+    alert('Something went wrong sending your message.\nPlease call us directly at (813) 536-6222.');
+  }
+}
 </script>
 </body>
 </html>

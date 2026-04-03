@@ -1,0 +1,7 @@
+modal
+gspread
+google-auth
+google-auth-oauthlib
+google-api-python-client
+anthropic
+python-dotenv
