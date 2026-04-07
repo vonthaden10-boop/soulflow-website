@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "seed": "node seed-leads.js",
     "scrape": "node scrape.js",
     "email": "node email.js",
     "pipeline": "node pipeline.js",
