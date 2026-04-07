@@ -292,7 +292,7 @@ async function main() {
       console.error(`  ✗  Failed for ${label}: ${err.message}\n`);
 
       // Mark error in Supabase so we can triage without re-attempting automatically
-      await supabase.from('leads').update({ status: 'error' }).eq('id', lead.id).catch(() => {});
+      try { await supabase.from('leads').update({ status: 'error' }).eq('id', lead.id); } catch (_) {}
       failed++;
     }
   }
