@@ -243,7 +243,7 @@ async function main() {
 
   console.log(`📋  ${leads.length} leads queued for outreach\n`);
 
-  let sent   = 0;  // "sent" here means previewed — no real emails go out until you restore the send block
+  let sent   = 0;
   let failed = 0;
 
   for (const lead of leads) {
