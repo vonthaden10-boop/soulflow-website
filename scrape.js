@@ -1,5 +1,5 @@
 /**
- * scrape.js — Vonthaden Solutions Lead Scraper
+ * scrape.js — Von Solutions Lead Scraper
  * Searches roofing, HVAC, and auto dealers in Tampa Bay
  * via Google Places API, deduplicates, and inserts into Supabase.
  *
@@ -100,7 +100,7 @@ async function fetchAllPages(query, vertical) {
 
 // ── Main ───────────────────────────────────────────────────────
 async function main() {
-  console.log('🔍  Vonthaden Solutions — Lead Scraper starting…\n');
+  console.log('🔍  Von Solutions — Lead Scraper starting…\n');
 
   // 1. Load existing place IDs to deduplicate (we store place_id in business_name for now
   //    — a cleaner approach uses a separate unique column; see note below)
