@@ -11,7 +11,7 @@
  * Usage: node migrate.js
  */
 
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');

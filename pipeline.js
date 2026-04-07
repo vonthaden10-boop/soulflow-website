@@ -6,7 +6,7 @@
  * Processes all leads with status = 'new' that have an email address.
  */
 
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const { createClient } = require('@supabase/supabase-js');
 const Anthropic         = require('@anthropic-ai/sdk');
 const { Resend }        = require('resend');

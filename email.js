@@ -274,18 +274,15 @@ async function main() {
       await saveEmailDraft(lead.id, subject, body);
       process.stdout.write(' done\n');
 
-      // 3. Preview only — print instead of sending
-      console.log(`\n${'─'.repeat(60)}`);
-      console.log(`  TO      : ${lead.email}`);
-      console.log(`  SUBJECT : ${subject}`);
-      console.log(`  BODY\n`);
-      console.log(body.split('\n').map(l => '    ' + l).join('\n'));
-      console.log(`${'─'.repeat(60)}\n`);
+      // 3. Send via Resend
+      process.stdout.write(`  📤  Sending "${subject}"…`);
+      const emailId = await sendEmail(lead.email, subject, body);
+      process.stdout.write(` sent (id: ${emailId})\n`);
 
-      // NOTE: not sending via Resend and not marking as sent —
-      // remove this block and restore steps 3 & 4 when ready to go live.
+      // 4. Mark as contacted — prevents any future re-send
+      await markSent(lead.id, emailId);
 
-      console.log(`  ✅  ${label} — preview printed\n`);
+      console.log(`  ✅  ${label} — complete\n`);
       sent++;
 
       await new Promise(r => setTimeout(r, 800));

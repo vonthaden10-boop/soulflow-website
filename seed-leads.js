@@ -8,7 +8,7 @@
  * Usage: node seed-leads.js
  */
 
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const { createClient } = require('@supabase/supabase-js');
 const Anthropic         = require('@anthropic-ai/sdk');
 const { Resend }        = require('resend');

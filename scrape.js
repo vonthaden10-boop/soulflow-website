@@ -6,7 +6,7 @@
  * Usage: npm run scrape
  */
 
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
