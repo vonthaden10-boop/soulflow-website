@@ -1,7 +1,10 @@
 /**
- * email.js — Von Solutions Email Sender
- * Audits each lead's website, uses Claude to write a personalized cold email
- * referencing exactly what they're missing, sends via Resend, and logs to Supabase.
+ * email.js — Vonthaden Solutions Email Sender
+ * Pulls unsent leads from Supabase, generates a personalized cold email for each
+ * using Claude (Sonnet 4.6), sends via Resend, and marks the lead as contacted.
+ *
+ * Audit is opportunistic: if a website exists we run it for richer personalization,
+ * but the pipeline never blocks on it — every lead with an email address gets reached.
  *
  * Usage: npm run email
  */
@@ -18,46 +21,105 @@ const resend    = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL   = process.env.FROM_EMAIL   || 'jacob@vonthaden.ai';
 const FROM_NAME    = process.env.FROM_NAME    || 'Jacob von Thaden';
-const AGENCY_NAME  = process.env.AGENCY_NAME  || 'Von Solutions';
+const AGENCY_NAME  = process.env.AGENCY_NAME  || 'Vonthaden Solutions';
 
 const BATCH_SIZE = 20;
 
-// ── Claude audit-aware email writer ───────────────────────────
+// ── Vertical pain points & hooks ──────────────────────────────
+// Each entry:
+//   pain  → what keeps them up at night (used in the email body)
+//   hook  → how our AI receptionist solves it (one punchy sentence)
+//   cta   → demo framing tuned to their day-to-day reality
 
-async function generateEmail(lead, audit) {
-  const missing = missingTools(audit);
-  const score   = scoreAudit(audit);
-  const { label: tierLabel } = recommendTier(score);
+const VERTICAL_PAIN_POINTS = {
+  roofing: {
+    pain:  'missing calls while up on a roof and can\'t answer',
+    hook:  'answers your phone when you\'re up on a roof — every call, every time',
+    cta:   'Takes 15 minutes. I can show you what your phone sounds like with AI answering.',
+  },
+  hvac: {
+    pain:  'losing after-hours service calls to competitors because nobody picks up',
+    hook:  'books service calls at 2am when your phone goes to voicemail',
+    cta:   'I can show you a 2-minute demo of what your after-hours calls would sound like.',
+  },
+  plumbing: {
+    pain:  'emergency calls going to voicemail while you\'re on a job',
+    hook:  'captures emergency calls 24/7 so you never lose a burst-pipe job to a competitor',
+    cta:   'Happy to show you a quick demo of how it handles emergency dispatch.',
+  },
+  auto: {
+    pain:  'losing buyer leads after hours when the lot is empty',
+    hook:  'captures and qualifies buyer inquiries after hours when your lot is dark',
+    cta:   'I can demo exactly what a late-night car buyer would hear when they call.',
+  },
+  landscaping: {
+    pain:  'missing quote requests during spring rush because you\'re out in the field all day',
+    hook:  'handles quote requests and scheduling while you\'re out on a property',
+    cta:   'I can show you a 2-minute demo of it handling a quote call start to finish.',
+  },
+};
 
-  // Pick the 2–3 most impactful missing tools to call out
-  const callouts   = missing.slice(0, 3);
-  const missingStr = callouts.length ? callouts.join(', ') : 'key automation tools';
+function getPainPoint(vertical) {
+  const key = (vertical || '').toLowerCase();
+  // fuzzy match — "roofing contractor" → "roofing"
+  for (const [k, v] of Object.entries(VERTICAL_PAIN_POINTS)) {
+    if (key.includes(k)) return v;
+  }
+  // generic fallback
+  return {
+    pain:  'missing calls and after-hours leads while running the business',
+    hook:  'answers every call and books jobs 24/7 — no voicemail, no missed revenue',
+    cta:   'I can show you a 2-minute demo of what your phone would sound like with AI answering.',
+  };
+}
 
-  // Pull intelligence signals to ground the email in real details
-  const intel       = audit.intelligence || {};
-  const gb          = audit.social?.googleBusiness;
-  const reviewCount = gb?.reviewCount ?? null;
+// ── Claude email writer ────────────────────────────────────────
 
-  const intelLines = [
-    intel.yearsInBusiness?.found
-      ? `- In business since ${intel.yearsInBusiness.year} (${intel.yearsInBusiness.yearsAgo} years)`
-      : null,
-    intel.teamSize?.found
-      ? `- Team size signals: ${intel.teamSize.signals.join('; ')}`
-      : null,
-    intel.serviceArea?.cities?.length
-      ? `- Service area mentions: ${intel.serviceArea.cities.join(', ')}`
-      : null,
-    intel.phone?.found
-      ? `- Phone on site: ${intel.phone.raw}`
-      : null,
-    reviewCount !== null
-      ? `- Google reviews: ${reviewCount} (rating: ${gb.rating ?? 'unknown'})`
-      : '- Google reviews: not found',
-    intel.reviewMentions?.count > 0
-      ? `- Mentions "reviews" or "testimonials" ${intel.reviewMentions.count} time(s) on site`
-      : null,
-  ].filter(Boolean).join('\n');
+async function generateEmail(lead, audit = null) {
+  const { pain, hook, cta } = getPainPoint(lead.vertical);
+
+  // Build audit-derived lines only when we have audit data
+  let auditSection = '';
+  let reviewLine   = '';
+
+  if (audit) {
+    const missing  = missingTools(audit);
+    const score    = scoreAudit(audit);
+    const { label: tierLabel } = recommendTier(score);
+    const callouts = missing.slice(0, 3);
+
+    const intel       = audit.intelligence || {};
+    const gb          = audit.social?.googleBusiness;
+    const reviewCount = gb?.reviewCount ?? null;
+
+    const intelLines = [
+      intel.yearsInBusiness?.found
+        ? `- In business since ${intel.yearsInBusiness.year} (${intel.yearsInBusiness.yearsAgo} years)`
+        : null,
+      intel.teamSize?.found
+        ? `- Team size signals: ${intel.teamSize.signals.join('; ')}`
+        : null,
+      intel.serviceArea?.cities?.length
+        ? `- Service area mentions: ${intel.serviceArea.cities.join(', ')}`
+        : null,
+      intel.phone?.found
+        ? `- Phone on site: ${intel.phone.raw}`
+        : null,
+      reviewCount !== null
+        ? `- Google reviews: ${reviewCount} (rating: ${gb.rating ?? 'unknown'})`
+        : null,
+    ].filter(Boolean).join('\n');
+
+    auditSection = `
+Website audit (use these to make the email feel researched, not mass-sent):
+- Opportunity score: ${score}/100 — recommended package: ${tierLabel}
+- Missing tools detected: ${callouts.length ? callouts.join(', ') : 'none flagged'}
+${intelLines}`;
+
+    if (reviewCount !== null && reviewCount < 10) {
+      reviewLine = `One extra line (casual, one sentence only): mention we help clients double their reviews in 60 days.`;
+    }
+  }
 
   const prompt = `You are writing a short, punchy cold outreach email on behalf of ${AGENCY_NAME}.
 
@@ -65,38 +127,31 @@ Business details:
 - Business name: ${lead.business_name}
 - Owner name: ${lead.owner_name || 'unknown'}
 - City: ${lead.city || 'Tampa Bay'}
-- Industry: ${lead.vertical}
+- Vertical: ${lead.vertical}
 
-What this business is missing (detected from their website):
-${missing.length ? missing.map(t => `- ${t}`).join('\n') : '- No major gaps detected'}
-
-Opportunity score: ${score}/100 — recommended package: ${tierLabel}
-
-Additional business intelligence (use these to make the email feel researched, not mass-sent):
-${intelLines || '- No additional signals detected'}
+Core pain point for this vertical: ${pain}
+How our AI receptionist solves it: ${hook}
+${auditSection}
 
 Write a cold email with these rules:
-1. Subject line: short, curiosity-driven, under 8 words, NO clickbait or spam words
-2. Opening: use owner name if known. If unknown, use business name naturally — never "Hi there" or "Hi team"
-3. One sentence referencing ${missingStr} specifically — make it feel like you personally looked at their site, not a mass email
-4. One sentence on what we do — make it vertical-specific. Roofers: "answers calls when you're on a roof." HVAC: "books service calls at 2am when your phone goes to voicemail." Auto dealers: "captures leads after hours when your lot is empty." Match the pain to their world.
-5. If they have fewer than 10 Google reviews or none detected, add one sentence: we also help clients double their reviews in 60 days — keep it casual, one line only
-6. CTA: offer to show them a 2-minute demo of what their phone would sound like with AI answering — no pitch, just show it. Ask if they have 15 minutes this week.
+1. Subject line: short, curiosity-driven, under 8 words. NO clickbait or spam words.
+2. Opening: use owner name if known. If unknown, use business name naturally — NEVER "Hi there" or "Hi team".
+3. One sentence that names the vertical pain point (${pain}) — make it feel personal, not mass-sent.
+4. One sentence on what we do: "${hook}" — keep it in your own words, match their world.
+5. ${reviewLine || 'Skip the review line.'}
+6. CTA: ${cta} Ask if they have 15 minutes this week.
 7. Signature: ${FROM_NAME}, ${AGENCY_NAME}, (813) 536-6222
-8. Total length: MAX 120 words — cut ruthlessly
-9. Tone: direct, human, confident — like a local guy who actually looked at their business, not a SaaS company
+8. Total length: MAX 120 words — cut ruthlessly.
+9. Tone: direct, human, confident — like a local guy who actually knows their industry, not a SaaS company.
 10. NO "I hope this email finds you well." NO "I came across your business." NO buzzwords. NO fluff.
 
 Return ONLY valid JSON, no markdown fences:
-{
-  "subject": "...",
-  "body": "..."
-}`;
+{"subject": "...", "body": "..."}`;
 
   const message = await anthropic.messages.create({
-    model: 'claude-opus-4-6',
+    model:      'claude-sonnet-4-6',
     max_tokens: 512,
-    messages: [{ role: 'user', content: prompt }],
+    messages:   [{ role: 'user', content: prompt }],
   });
 
   const raw     = message.content[0].text.trim();
@@ -162,12 +217,16 @@ async function markSent(id, resendId) {
 // ── Main ───────────────────────────────────────────────────────
 
 async function main() {
-  console.log('📧  Von Solutions — Email Sender starting…\n');
+  console.log('📧  Vonthaden Solutions — Email Sender starting…\n');
 
+  // Pull leads that have never been emailed and have an email address.
+  // Double-guard: email_sent = false AND status != 'sent' prevents re-sends
+  // if one field gets out of sync.
   const { data: leads, error } = await supabase
     .from('leads')
     .select('*')
     .eq('email_sent', false)
+    .neq('status', 'sent')
     .not('email', 'is', null)
     .order('created_at', { ascending: true })
     .limit(BATCH_SIZE);
@@ -182,7 +241,7 @@ async function main() {
     return;
   }
 
-  console.log(`  📋  ${leads.length} leads queued for outreach\n`);
+  console.log(`📋  ${leads.length} leads queued for outreach\n`);
 
   let sent   = 0;
   let failed = 0;
@@ -191,16 +250,26 @@ async function main() {
     const label = `${lead.business_name} <${lead.email}>`;
 
     try {
-      // 1. Audit website
-      process.stdout.write(`  🔍  Auditing ${lead.business_name}…`);
-      const audit = await auditWebsite(lead.website, lead.business_name, lead.city);
-      const score = scoreAudit(audit);
-      const { tier } = recommendTier(score);
-      await saveAudit(lead.id, audit, score, tier);
-      process.stdout.write(` score ${score} → ${tier}\n`);
+      // 1. Audit website (opportunistic — skip if no website)
+      let audit = null;
+      if (lead.website) {
+        process.stdout.write(`  🔍  Auditing ${lead.business_name}…`);
+        try {
+          audit = await auditWebsite(lead.website, lead.business_name, lead.city);
+          const score = scoreAudit(audit);
+          const { tier } = recommendTier(score);
+          await saveAudit(lead.id, audit, score, tier);
+          process.stdout.write(` score ${scoreAudit(audit)} → ${tier}\n`);
+        } catch (auditErr) {
+          process.stdout.write(` ⚠ audit failed (${auditErr.message}) — continuing without it\n`);
+          audit = null;
+        }
+      } else {
+        console.log(`  ⚡  No website for ${lead.business_name} — skipping audit`);
+      }
 
       // 2. Generate personalized email
-      process.stdout.write(`  ✍  Generating email for ${label}…`);
+      process.stdout.write(`  ✍   Generating email for ${label}…`);
       const { subject, body } = await generateEmail(lead, audit);
       await saveEmailDraft(lead.id, subject, body);
       process.stdout.write(' done\n');
@@ -210,7 +279,7 @@ async function main() {
       const emailId = await sendEmail(lead.email, subject, body);
       process.stdout.write(` sent (id: ${emailId})\n`);
 
-      // 4. Mark sent in Supabase
+      // 4. Mark as contacted — prevents any future re-send
       await markSent(lead.id, emailId);
 
       console.log(`  ✅  ${label} — complete\n`);
@@ -221,6 +290,9 @@ async function main() {
     } catch (err) {
       process.stdout.write('\n');
       console.error(`  ✗  Failed for ${label}: ${err.message}\n`);
+
+      // Mark error in Supabase so we can triage without re-attempting automatically
+      await supabase.from('leads').update({ status: 'error' }).eq('id', lead.id).catch(() => {});
       failed++;
     }
   }
