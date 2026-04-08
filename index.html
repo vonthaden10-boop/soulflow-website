@@ -874,19 +874,11 @@
       position: relative;
       width: 100%;
       height: 100vh;
-      min-height: 640px;
+      min-height: 680px;
       overflow: hidden;
       background: transparent;
       display: flex;
       align-items: stretch;
-    }
-
-    #arch-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
     }
 
     #spoke-root {
@@ -894,6 +886,18 @@
       z-index: 1;
       width: 100%;
       height: 100%;
+    }
+
+    @media (max-width: 768px) {
+      #architecture {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+      }
+      #spoke-root {
+        height: auto;
+        overflow: visible;
+      }
     }
 
     @keyframes archPanelIn {
@@ -1438,9 +1442,9 @@ async function handleSubmit(e) {
   const GOLD_GLOW = "#e8c46a";
 
   const TIER_LABELS = {
-    1: { label: "Tier 1 · Answer",  color: "#C9A84C", full: "ANSWER — $500/mo" },
-    2: { label: "Tier 2 · Nurture", color: "#b8922e", full: "ANSWER+ — $1,200/mo" },
-    3: { label: "Tier 3 · Grow",    color: "#8a6820", full: "GROW — $2,500/mo" },
+    1: { label: "Tier 1 · Answer",  color: "#C9A84C" },
+    2: { label: "Tier 2 · Nurture", color: "#b8922e" },
+    3: { label: "Tier 3 · Grow",    color: "#8a6820" },
   };
 
   const RAW_SPOKES = [
@@ -1451,7 +1455,7 @@ async function handleSubmit(e) {
     { id:"lead",         label:"Lead Response Speed",  tier:2, desc:"Sub-5 minute automated response to every inbound lead. The difference between closing and losing." },
     { id:"outbound",     label:"Outbound Call & Text", tier:2, desc:"AI-powered outbound campaigns. Follow-up sequences, re-engagement, and lead nurture — automated." },
     { id:"reviews",      label:"Review Management",    tier:2, desc:"Auto-respond to Google reviews. Flag negatives. Build reputation on autopilot." },
-    { id:"content",      label:"Content Creation",     tier:3, desc:"Local search data → AI-generated content. 30 days of posts built from what customers actually search." },
+    { id:"content",      label:"Content Creation",     tier:3, desc:"Local search data drives AI-generated content. 30 days of posts built from what customers actually search." },
     { id:"social",       label:"Social Media Mgmt",    tier:3, desc:"Scheduled, optimized, and published across platforms. Strategy driven by local SEO signals." },
     { id:"ads",          label:"Meta Ads",             tier:3, desc:"Full Meta Ads management. Audience targeting, creative, budget optimization — all handled." },
     { id:"seo",          label:"SEO",                  tier:3, desc:"Google Business Profile + Places API + Trends data. Local search dominance for trades businesses." },
@@ -1464,114 +1468,150 @@ async function handleSubmit(e) {
     color: TIER_LABELS[s.tier].color,
   }));
 
-  const CENTER  = 300;
-  const CORE_R  = 62;
-  const SPOKE_R = 220;
-  const NODE_R  = 40;
+  /* Desktop geometry */
+  const D_CENTER = 300, D_CORE_R = 72, D_SPOKE_R = 228, D_NODE_R = 46;
+  /* Mobile geometry — bigger nodes, bigger text */
+  const M_CENTER = 300, M_CORE_R = 68, M_SPOKE_R = 218, M_NODE_R = 50;
 
-  function polar(deg, r) {
+  function polar(deg, r, cx) {
     const rad = (deg * Math.PI) / 180;
-    return { x: Math.cos(rad) * r, y: Math.sin(rad) * r };
+    return { x: cx + Math.cos(rad) * r, y: cx + Math.sin(rad) * r };
   }
 
   /* ── WHEEL SVG ── */
-  function Wheel({ active, onToggle }) {
+  function Wheel({ active, onToggle, mobile }) {
+    const CX     = mobile ? M_CENTER : D_CENTER;
+    const CORE_R = mobile ? M_CORE_R : D_CORE_R;
+    const SPOKE_R= mobile ? M_SPOKE_R: D_SPOKE_R;
+    const NODE_R = mobile ? M_NODE_R : D_NODE_R;
+    const labelFS= mobile ? 11 : 9;
+    const coreFS = mobile ? 15 : 13;
+    const subFS  = mobile ? 9  : 8;
+
     return (
-      <svg viewBox="0 0 600 600" style={{
-        display:"block", width:"100%",
-        maxWidth:"clamp(300px, 46vw, 560px)",
-        overflow:"visible", flexShrink:0,
-      }}>
+      <svg
+        viewBox="0 0 600 600"
+        style={{
+          display:"block",
+          width: mobile ? "min(98vw, 520px)" : "100%",
+          maxWidth: mobile ? "520px" : "clamp(420px, 48vw, 620px)",
+          minWidth: mobile ? "340px" : "420px",
+          overflow:"visible",
+          filter:"drop-shadow(0 0 32px rgba(201,168,76,0.12))",
+        }}
+      >
         <defs>
           <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="#2a1f0a"/>
-            <stop offset="100%" stopColor="#050505"/>
+            <stop offset="0%"   stopColor="#3a2a08"/>
+            <stop offset="100%" stopColor="#080600"/>
           </radialGradient>
-          <filter id="glowF">
-            <feGaussianBlur stdDeviation="3.5" result="b"/>
+          <radialGradient id="nodeGradOn" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor="#2a1e04"/>
+            <stop offset="100%" stopColor="#100c01"/>
+          </radialGradient>
+          <filter id="glowF" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <filter id="softglowF">
-            <feGaussianBlur stdDeviation="7" result="b"/>
+          <filter id="softglowF" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="10" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="coreGlowF" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="8" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
-        {/* orbit rings */}
-        {[SPOKE_R - 32, SPOKE_R, SPOKE_R + 32].map((r, i) => (
-          <circle key={i} cx={CENTER} cy={CENTER} r={r} fill="none"
+        {/* Orbit rings */}
+        {[SPOKE_R - 36, SPOKE_R, SPOKE_R + 36].map((r, i) => (
+          <circle key={i} cx={CX} cy={CX} r={r} fill="none"
             stroke={GOLD}
-            strokeWidth={i === 1 ? 0.5 : 0.2}
-            strokeOpacity={i === 1 ? 0.18 : 0.07}
-            strokeDasharray={i === 1 ? "none" : "3 9"}
+            strokeWidth={i === 1 ? 0.7 : 0.25}
+            strokeOpacity={i === 1 ? 0.22 : 0.08}
+            strokeDasharray={i === 1 ? "none" : "3 10"}
           />
         ))}
 
-        {/* spokes */}
+        {/* Spoke lines */}
         {SPOKES.map(s => {
-          const p   = polar(s.angle, SPOKE_R);
-          const inn = polar(s.angle, CORE_R + 4);
+          const tip = polar(s.angle, SPOKE_R, CX);
+          const inn = polar(s.angle, CORE_R + 5, CX);
           const on  = active === s.id;
           return (
             <line key={s.id}
-              x1={CENTER+inn.x} y1={CENTER+inn.y}
-              x2={CENTER+p.x}   y2={CENTER+p.y}
+              x1={inn.x} y1={inn.y} x2={tip.x} y2={tip.y}
               stroke={on ? GOLD_GLOW : s.color}
-              strokeWidth={on ? 1.8 : 0.9}
-              strokeOpacity={on ? 1 : 0.3}
+              strokeWidth={on ? 2.2 : 1.1}
+              strokeOpacity={on ? 1 : 0.38}
               style={{transition:"all 0.35s ease"}}
             />
           );
         })}
 
-        {/* core */}
-        <circle cx={CENTER} cy={CENTER} r={CORE_R}
-          fill="url(#coreGrad)" stroke={GOLD} strokeWidth="1.8" filter="url(#glowF)"/>
-        <circle cx={CENTER} cy={CENTER} r={CORE_R - 10}
-          fill="none" stroke={GOLD} strokeWidth="0.5" strokeOpacity="0.35"/>
-        <text x={CENTER} y={CENTER - 10} textAnchor="middle"
-          fill={GOLD} fontSize="12" fontFamily="Cinzel,Georgia,serif" letterSpacing="2.5">SUPA</text>
-        <text x={CENTER} y={CENTER + 6} textAnchor="middle"
-          fill={GOLD} fontSize="12" fontFamily="Cinzel,Georgia,serif" letterSpacing="2.5">BASE</text>
-        <text x={CENTER} y={CENTER + 22} textAnchor="middle"
-          fill={GOLD} fontSize="7.5" fontFamily="Georgia,serif" letterSpacing="1.5" fillOpacity="0.5">CORE HUB</text>
+        {/* Core glow halo */}
+        <circle cx={CX} cy={CX} r={CORE_R + 14}
+          fill="none" stroke={GOLD} strokeWidth="1" strokeOpacity="0.12"
+          filter="url(#coreGlowF)"/>
 
-        {/* nodes */}
+        {/* Core circle */}
+        <circle cx={CX} cy={CX} r={CORE_R}
+          fill="url(#coreGrad)" stroke={GOLD} strokeWidth="2.2" filter="url(#glowF)"/>
+        <circle cx={CX} cy={CX} r={CORE_R - 12}
+          fill="none" stroke={GOLD} strokeWidth="0.6" strokeOpacity="0.4"/>
+
+        <text x={CX} y={CX - 12} textAnchor="middle"
+          fill={GOLD} fontSize={coreFS} fontFamily="Cinzel,Georgia,serif" letterSpacing="3" fontWeight="600">SUPA</text>
+        <text x={CX} y={CX + 7} textAnchor="middle"
+          fill={GOLD} fontSize={coreFS} fontFamily="Cinzel,Georgia,serif" letterSpacing="3" fontWeight="600">BASE</text>
+        <text x={CX} y={CX + 24} textAnchor="middle"
+          fill={GOLD} fontSize={subFS} fontFamily="Georgia,serif" letterSpacing="2" fillOpacity="0.45">CORE HUB</text>
+
+        {/* Nodes */}
         {SPOKES.map(s => {
-          const p     = polar(s.angle, SPOKE_R);
-          const on    = active === s.id;
+          const p  = polar(s.angle, SPOKE_R, CX);
+          const on = active === s.id;
           const words = s.label.split(" ");
           const mid   = Math.ceil(words.length / 2);
           const l1    = words.slice(0, mid).join(" ");
           const l2    = words.slice(mid).join(" ");
+          const lineH = labelFS + 3;
+          const textY = l2 ? p.y - lineH * 0.5 + labelFS * 0.35 : p.y + labelFS * 0.35;
+
           return (
             <g key={s.id} style={{cursor:"pointer"}} onClick={() => onToggle(s.id)}>
+              {/* Active outer glow ring */}
               {on && (
-                <circle cx={CENTER+p.x} cy={CENTER+p.y} r={NODE_R + 10}
-                  fill="none" stroke={GOLD_GLOW} strokeWidth="1"
-                  strokeOpacity="0.35" filter="url(#softglowF)"/>
+                <circle cx={p.x} cy={p.y} r={NODE_R + 16}
+                  fill="none" stroke={GOLD_GLOW} strokeWidth="1.2"
+                  strokeOpacity="0.4" filter="url(#softglowF)"/>
               )}
-              <circle cx={CENTER+p.x} cy={CENTER+p.y} r={NODE_R}
-                fill={on ? "#1c1400" : "#0c0a02"}
+              {/* Node circle */}
+              <circle cx={p.x} cy={p.y} r={NODE_R}
+                fill={on ? "url(#nodeGradOn)" : "#0a0800"}
                 stroke={on ? GOLD_GLOW : s.color}
-                strokeWidth={on ? 1.8 : 0.9}
-                strokeOpacity={on ? 1 : 0.55}
+                strokeWidth={on ? 2.2 : 1.2}
+                strokeOpacity={on ? 1 : 0.6}
                 style={{transition:"all 0.35s ease"}}
               />
-              {/* tier pip */}
-              <circle cx={CENTER+p.x} cy={CENTER+p.y - NODE_R + 9}
-                r={3.5} fill={s.color} fillOpacity="0.9"/>
-              <text x={CENTER+p.x} y={CENTER+p.y + (l2 ? -4 : 5)}
+              {/* Tier pip */}
+              <circle cx={p.x} cy={p.y - NODE_R + 10} r={4}
+                fill={s.color} fillOpacity="0.95"/>
+              {/* Label line 1 */}
+              <text x={p.x} y={textY}
                 textAnchor="middle"
                 fill={on ? GOLD_GLOW : CREAM}
-                fontSize="8" fontFamily="Georgia,serif" letterSpacing="0.5"
+                fontSize={labelFS} fontFamily="Georgia,serif" fontWeight="400"
+                letterSpacing="0.3"
                 style={{transition:"fill 0.35s", userSelect:"none", pointerEvents:"none"}}
               >{l1}</text>
+              {/* Label line 2 */}
               {l2 && (
-                <text x={CENTER+p.x} y={CENTER+p.y + 9}
+                <text x={p.x} y={textY + lineH}
                   textAnchor="middle"
                   fill={on ? GOLD_GLOW : CREAM}
-                  fontSize="8" fontFamily="Georgia,serif" letterSpacing="0.5"
+                  fontSize={labelFS} fontFamily="Georgia,serif" fontWeight="400"
+                  letterSpacing="0.3"
                   style={{transition:"fill 0.35s", userSelect:"none", pointerEvents:"none"}}
                 >{l2}</text>
               )}
@@ -1582,198 +1622,234 @@ async function handleSubmit(e) {
     );
   }
 
-  /* ── INFO PANEL DEFAULT ── */
-  function DefaultPanel() {
+  /* ── INFO PANEL ── */
+  function InfoPanel({ spoke, animKey, mobile }) {
+    const tier = spoke ? TIER_LABELS[spoke.tier] : null;
+
+    if (!spoke) {
+      /* Default state — always show VON SOLUTIONS identity */
+      return (
+        <div style={{
+          textAlign: mobile ? "center" : "left",
+          fontFamily:"Cinzel,Georgia,serif",
+          animation:"archFadeIn 0.6s ease both",
+          padding: mobile ? "28px 20px 36px" : "0",
+          width:"100%",
+        }}>
+          <div style={{
+            fontSize:"10px", letterSpacing:"5px",
+            color:GOLD, textTransform:"uppercase", marginBottom:"20px",
+            opacity:0.65, fontFamily:"Georgia,serif",
+          }}>
+            Service Architecture
+          </div>
+          <div style={{
+            fontSize:"clamp(36px,4vw,58px)", color:GOLD,
+            fontWeight:700, letterSpacing:"0.04em", lineHeight:1, marginBottom:"6px",
+          }}>VON</div>
+          <div style={{
+            fontSize:"clamp(24px,2.8vw,40px)", color:"#fff",
+            fontWeight:400, letterSpacing:"0.32em", marginBottom:"32px",
+          }}>SOLUTIONS</div>
+          <div style={{
+            width:"36px", height:"2px",
+            background:GOLD,
+            margin: mobile ? "0 auto 28px" : "0 0 28px",
+            opacity:0.55,
+          }}/>
+          <p style={{
+            fontFamily:"Georgia,serif",
+            fontSize:"clamp(13px,1.2vw,15px)",
+            color:"rgba(255,255,255,0.45)",
+            lineHeight:1.8, margin:"0 0 36px",
+            maxWidth:"380px",
+          }}>
+            Every service connects to one central hub. Tap any node to explore what we build into your business.
+          </p>
+          {/* Tier legend */}
+          <div style={{
+            display:"flex", flexDirection:"column", gap:"12px",
+            borderTop:"1px solid rgba(201,168,76,0.14)",
+            paddingTop:"28px",
+          }}>
+            {Object.entries(TIER_LABELS).map(([t, { label, color }]) => (
+              <div key={t} style={{display:"flex", alignItems:"center", gap:"12px"}}>
+                <div style={{width:"8px",height:"8px",borderRadius:"50%",background:color,flexShrink:0}}/>
+                <span style={{
+                  fontSize:"10px", color:"rgba(255,255,255,0.38)",
+                  letterSpacing:"1.5px", fontFamily:"Georgia,serif",
+                  textTransform:"uppercase",
+                }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /* Active spoke state */
     return (
-      <div style={{
-        textAlign:"center", fontFamily:"Cinzel,Georgia,serif",
-        animation:"archFadeIn 0.6s ease both",
+      <div key={animKey} style={{
+        animation:"archPanelIn 0.42s ease both",
+        padding: mobile ? "28px 20px 40px" : "0",
+        width:"100%",
       }}>
         <div style={{
-          fontSize:"clamp(9px,1vw,11px)", letterSpacing:"5px",
-          color:GOLD, textTransform:"uppercase", marginBottom:"28px",
-          opacity:0.7,
-        }}>
-          Service Architecture
-        </div>
-        <div style={{
-          fontSize:"clamp(28px,3.5vw,52px)", color:"#fff",
-          fontWeight:700, letterSpacing:"0.05em",
-          lineHeight:1.1, marginBottom:"8px",
-        }}>
-          <span style={{color:GOLD}}>VON</span>
-        </div>
-        <div style={{
-          fontSize:"clamp(20px,2.5vw,36px)", color:"#fff",
-          fontWeight:400, letterSpacing:"0.35em",
-          marginBottom:"40px",
-        }}>
-          SOLUTIONS
-        </div>
-        <div style={{
-          width:"40px", height:"1px",
-          background:GOLD, margin:"0 auto 32px", opacity:0.5,
-        }}/>
-        <div style={{
-          fontSize:"clamp(9px,0.9vw,10px)", letterSpacing:"3px",
-          color:"rgba(255,255,255,0.3)", textTransform:"uppercase",
-          fontFamily:"Georgia,serif",
-        }}>
-          Select a node to explore
-        </div>
-        {/* tier legend */}
-        <div style={{
-          display:"flex", flexDirection:"column", gap:"10px",
-          marginTop:"44px", alignItems:"flex-start",
-          borderTop:"1px solid rgba(201,168,76,0.12)",
-          paddingTop:"28px",
-        }}>
-          {Object.entries(TIER_LABELS).map(([tier, { label, color, full }]) => (
-            <div key={tier} style={{display:"flex", alignItems:"center", gap:"12px"}}>
-              <div style={{
-                width:"8px", height:"8px", borderRadius:"50%",
-                background:color, flexShrink:0,
-              }}/>
-              <span style={{fontSize:"10px", color:"rgba(255,255,255,0.4)", letterSpacing:"1.5px", fontFamily:"Georgia,serif"}}>
-                {full}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  /* ── INFO PANEL ACTIVE ── */
-  function ActivePanel({ spoke, animKey }) {
-    const tier = TIER_LABELS[spoke.tier];
-    return (
-      <div key={animKey} style={{animation:"archPanelIn 0.45s ease both"}}>
-        <div style={{
-          fontSize:"9px", letterSpacing:"4px",
-          color:tier.color, textTransform:"uppercase",
-          fontFamily:"Cinzel,Georgia,serif", marginBottom:"18px",
-          display:"flex", alignItems:"center", gap:"10px",
+          fontSize:"9px", letterSpacing:"4px", color:tier.color,
+          textTransform:"uppercase", fontFamily:"Cinzel,Georgia,serif",
+          marginBottom:"20px", display:"flex", alignItems:"center", gap:"10px",
         }}>
           <div style={{width:"6px",height:"6px",borderRadius:"50%",background:tier.color,flexShrink:0}}/>
           {tier.label}
         </div>
         <h2 style={{
           fontFamily:"Cinzel,Georgia,serif",
-          fontSize:"clamp(22px,3vw,42px)",
-          fontWeight:600, color:"#fff",
-          letterSpacing:"0.04em",
-          lineHeight:1.15,
-          marginBottom:"24px",
+          fontSize:"clamp(24px,3.2vw,46px)",
+          fontWeight:700, color:"#fff",
+          letterSpacing:"0.04em", lineHeight:1.1,
+          marginBottom:"22px",
         }}>
           {spoke.label}
         </h2>
         <div style={{
-          width:"32px", height:"2px",
-          background:tier.color, marginBottom:"28px", opacity:0.8,
+          width:"36px", height:"2px",
+          background:tier.color, marginBottom:"26px", opacity:0.9,
         }}/>
         <p style={{
           fontFamily:"Georgia,serif",
-          fontSize:"clamp(13px,1.3vw,16px)",
-          color:CREAM, lineHeight:1.85,
-          opacity:0.82, margin:0,
-          maxWidth:"440px",
+          fontSize:"clamp(14px,1.35vw,17px)",
+          color:CREAM, lineHeight:1.88,
+          opacity:0.85, margin:0, maxWidth:"420px",
         }}>
           {spoke.desc}
         </p>
         <div style={{
-          marginTop:"36px",
-          display:"inline-flex", alignItems:"center", gap:"10px",
+          marginTop:"32px", display:"inline-flex",
+          alignItems:"center", gap:"10px",
           fontSize:"9px", letterSpacing:"3px",
-          color:"rgba(255,255,255,0.25)",
+          color:"rgba(255,255,255,0.22)",
           textTransform:"uppercase", fontFamily:"Georgia,serif",
         }}>
-          <div style={{width:"20px",height:"1px",background:"rgba(201,168,76,0.3)"}}/>
-          {tier.full}
-          <div style={{width:"20px",height:"1px",background:"rgba(201,168,76,0.3)"}}/>
+          <div style={{width:"20px",height:"1px",background:"rgba(201,168,76,0.28)"}}/>
+          {tier.label}
+          <div style={{width:"20px",height:"1px",background:"rgba(201,168,76,0.28)"}}/>
         </div>
       </div>
     );
   }
 
-  /* ── ROOT COMPONENT ── */
+  /* ── ROOT ── */
   function SpokeWheel() {
-    const [active,  setActive]  = React.useState(null);
+    /* Default to first spoke so panel always has content */
+    const [active,  setActive]  = React.useState(SPOKES[0].id);
     const [animKey, setAnimKey] = React.useState(0);
-    const activeSpoke = SPOKES.find(s => s.id === active);
+    const activeSpoke = SPOKES.find(s => s.id === active) || null;
 
     const toggle = id => {
       setActive(prev => prev === id ? null : id);
       setAnimKey(k => k + 1);
     };
 
-    const isMobile = window.innerWidth <= 768;
+    const [mobile, setMobile] = React.useState(window.innerWidth <= 768);
+    React.useEffect(() => {
+      const handler = () => setMobile(window.innerWidth <= 768);
+      window.addEventListener('resize', handler);
+      return () => window.removeEventListener('resize', handler);
+    }, []);
 
+    if (mobile) {
+      /* ── MOBILE: stack wheel top, panel below ── */
+      return (
+        <div style={{
+          display:"flex", flexDirection:"column",
+          alignItems:"center",
+          width:"100%",
+          fontFamily:"Georgia,serif",
+          paddingTop:"80px",
+          boxSizing:"border-box",
+        }}>
+          {/* Wheel — full width */}
+          <div style={{
+            width:"100%", display:"flex",
+            justifyContent:"center",
+            padding:"0 4px",
+          }}>
+            <Wheel active={active} onToggle={toggle} mobile={true}/>
+          </div>
+
+          {/* Mobile tier legend */}
+          <div style={{
+            display:"flex", gap:"14px", flexWrap:"wrap",
+            justifyContent:"center", marginTop:"16px", marginBottom:"4px",
+          }}>
+            {Object.entries(TIER_LABELS).map(([t, { label, color }]) => (
+              <div key={t} style={{display:"flex",alignItems:"center",gap:"6px"}}>
+                <div style={{width:"7px",height:"7px",borderRadius:"50%",background:color}}/>
+                <span style={{fontSize:"9px",color:"rgba(255,255,255,0.4)",letterSpacing:"1px"}}>{label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Info panel */}
+          <div style={{
+            width:"100%", maxWidth:"520px",
+            borderTop:"1px solid rgba(201,168,76,0.18)",
+            marginTop:"12px",
+          }}>
+            <InfoPanel spoke={activeSpoke} animKey={animKey} mobile={true}/>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── DESKTOP: split screen ── */
     return (
       <div style={{
-        display:"flex",
-        flexDirection: isMobile ? "column" : "row",
-        alignItems:"center",
-        justifyContent:"center",
+        display:"flex", flexDirection:"row",
+        alignItems:"stretch",
         width:"100%", height:"100%",
         fontFamily:"Georgia,serif",
-        padding: isMobile ? "80px 20px 28px" : "0 4% 0 5%",
-        gap: isMobile ? "0" : "0",
         boxSizing:"border-box",
       }}>
 
-        {/* ── LEFT: WHEEL ── */}
+        {/* LEFT: Wheel */}
         <div style={{
+          flex:"0 0 54%", width:"54%",
           display:"flex", flexDirection:"column",
           alignItems:"center", justifyContent:"center",
-          flex: isMobile ? "0 0 auto" : "0 0 52%",
-          width: isMobile ? "100%" : "52%",
-          height: isMobile ? "55vh" : "100%",
-          minHeight: isMobile ? "320px" : "auto",
-          padding: isMobile ? "0" : "0 2% 0 0",
+          padding:"0 2% 0 5%",
+          height:"100%",
         }}>
-          {/* tier legend — desktop only */}
-          {!isMobile && (
-            <div style={{
-              display:"flex", gap:"18px", marginBottom:"20px", alignSelf:"flex-start",
-              paddingLeft:"4%",
-            }}>
-              {Object.entries(TIER_LABELS).map(([tier, { label, color }]) => (
-                <div key={tier} style={{
-                  display:"flex", alignItems:"center", gap:"7px",
-                  fontSize:"9px", color:"rgba(255,255,255,0.35)", letterSpacing:"1.5px",
-                }}>
-                  <div style={{width:"7px",height:"7px",borderRadius:"50%",background:color}}/>
-                  {label}
-                </div>
-              ))}
-            </div>
-          )}
-          <Wheel active={active} onToggle={toggle}/>
+          {/* Tier legend */}
+          <div style={{
+            display:"flex", gap:"20px", marginBottom:"24px",
+            alignSelf:"flex-start", paddingLeft:"2%",
+          }}>
+            {Object.entries(TIER_LABELS).map(([t, { label, color }]) => (
+              <div key={t} style={{display:"flex",alignItems:"center",gap:"7px"}}>
+                <div style={{width:"7px",height:"7px",borderRadius:"50%",background:color}}/>
+                <span style={{fontSize:"9px",color:"rgba(255,255,255,0.38)",letterSpacing:"1.5px"}}>{label}</span>
+              </div>
+            ))}
+          </div>
+          <Wheel active={active} onToggle={toggle} mobile={false}/>
         </div>
 
-        {/* ── DIVIDER ── */}
-        {!isMobile && (
-          <div style={{
-            width:"1px", height:"55%",
-            background:"linear-gradient(to bottom, transparent, rgba(201,168,76,0.25) 30%, rgba(201,168,76,0.25) 70%, transparent)",
-            flexShrink:0,
-          }}/>
-        )}
-
-        {/* ── RIGHT: INFO PANEL ── */}
+        {/* Divider */}
         <div style={{
-          display:"flex", alignItems:"center", justifyContent:"center",
-          flex: isMobile ? "1 1 auto" : "0 0 48%",
-          width: isMobile ? "100%" : "48%",
-          height: isMobile ? "auto" : "100%",
-          padding: isMobile ? "20px 16px 20px" : "0 5% 0 6%",
+          width:"1px", flexShrink:0, alignSelf:"center", height:"60%",
+          background:"linear-gradient(to bottom, transparent, rgba(201,168,76,0.28) 30%, rgba(201,168,76,0.28) 70%, transparent)",
+        }}/>
+
+        {/* RIGHT: Info panel */}
+        <div style={{
+          flex:"0 0 46%", width:"46%",
+          display:"flex", alignItems:"center", justifyContent:"flex-start",
+          padding:"0 6% 0 7%",
+          height:"100%",
           overflow:"hidden",
         }}>
-          {activeSpoke
-            ? <ActivePanel spoke={activeSpoke} animKey={animKey}/>
-            : <DefaultPanel/>
-          }
+          <InfoPanel spoke={activeSpoke} animKey={animKey} mobile={false}/>
         </div>
 
       </div>
