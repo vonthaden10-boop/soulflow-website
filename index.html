@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VON Systems — AI-Powered Business Automation</title>
+  <title>VON Solutions — AI-Powered Business Automation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
     /* ═══════════════════════════════════════════
        RESET & ROOT
@@ -66,6 +69,12 @@
     body:has(.form-submit:hover) #cursor-ring {
       width: 56px; height: 56px;
       opacity: 1;
+    }
+
+    @media (pointer: coarse) {
+      body { cursor: auto; }
+      a, button, input, select, textarea, label { cursor: auto; }
+      #cursor-dot, #cursor-ring { display: none; }
     }
 
     /* ═══════════════════════════════════════════
@@ -147,11 +156,18 @@
       padding: 130px 6% 0;
     }
 
-    #hero-canvas {
-      position: absolute;
+    #global-stars {
+      position: fixed;
       inset: 0;
+      width: 100%; height: 100%;
       z-index: 0;
+      pointer-events: none;
       display: block;
+    }
+
+    section, footer {
+      position: relative;
+      z-index: 1;
     }
 
     .hero-grid {
@@ -353,7 +369,7 @@
     /* ═══════════════════════════════════════════
        THE PROBLEM
     ═══════════════════════════════════════════ */
-    #problem { background: #000; }
+    #problem { background: transparent; }
 
     .problem-header {
       text-align: center;
@@ -449,7 +465,7 @@
     /* ═══════════════════════════════════════════
        WHAT THIS MEANS
     ═══════════════════════════════════════════ */
-    #means { background: #000; }
+    #means { background: transparent; }
 
     .means-inner {
       max-width: 720px;
@@ -503,7 +519,7 @@
     /* ═══════════════════════════════════════════
        THE SOLUTION
     ═══════════════════════════════════════════ */
-    #services { background: #000; }
+    #services { background: transparent; }
 
     .solution-header {
       text-align: center;
@@ -626,7 +642,7 @@
     /* ═══════════════════════════════════════════
        CONTACT
     ═══════════════════════════════════════════ */
-    #contact { background: #000; }
+    #contact { background: transparent; }
 
     .contact-grid {
       display: grid;
@@ -759,7 +775,7 @@
        FOOTER
     ═══════════════════════════════════════════ */
     footer {
-      background: #000;
+      background: transparent;
       border-top: 1px solid rgba(201,168,76,0.18);
       padding: 2.5rem 6%;
       display: flex;
@@ -850,9 +866,50 @@
     @media (max-width: 520px) {
       .hero-buttons { flex-direction: column; align-items: center; }
     }
+
+    /* ═══════════════════════════════════════════
+       SERVICE ARCHITECTURE SECTION
+    ═══════════════════════════════════════════ */
+    #architecture {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      overflow: hidden;
+      background: transparent;
+      display: flex;
+      align-items: stretch;
+    }
+
+    #arch-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    #spoke-root {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes archPanelIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes archFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ── GLOBAL STAR FIELD ───────────────────── -->
+<canvas id="global-stars"></canvas>
 
 <!-- ── CURSOR ──────────────────────────────── -->
 <div id="cursor-dot"></div>
@@ -861,7 +918,7 @@
 <!-- ── NAV ────────────────────────────────── -->
 <nav id="navbar">
   <a class="nav-logo" href="#">
-    <span class="von">VON</span><span class="systems">&nbsp;SYSTEMS</span>
+    <span class="von">VON</span><span class="systems">&nbsp;SOLUTIONS</span>
   </a>
   <ul class="nav-links" id="navLinks">
     <li><a href="#services">Services</a></li>
@@ -876,7 +933,6 @@
 
 <!-- ── HERO ───────────────────────────────── -->
 <section id="hero">
-  <canvas id="hero-canvas"></canvas>
   <div class="hero-grid"></div>
   <div class="hero-radial"></div>
 
@@ -913,6 +969,11 @@
       <span class="ticker-item">Tampa Bay</span>
     </div>
   </div>
+</section>
+
+<!-- ── SERVICE ARCHITECTURE ──────────────── -->
+<section id="architecture">
+  <div id="spoke-root"></div>
 </section>
 
 <!-- ── THE PROBLEM ────────────────────────── -->
@@ -1057,7 +1118,7 @@
         Ready to<br><span class="gold-italic">Ignite</span><br>Your Growth?
       </h2>
       <p class="contact-body reveal">
-        Fill out the form and a VON Systems strategist will reach out within one business day.
+        Fill out the form and a VON Solutions strategist will reach out within one business day.
       </p>
       <div class="contact-details reveal reveal-d2">
         <div class="contact-detail">
@@ -1127,7 +1188,7 @@
 <!-- ── FOOTER ─────────────────────────────── -->
 <footer>
   <div class="footer-logo">
-    <span class="von">VON</span><span class="systems">&nbsp;SYSTEMS</span>
+    <span class="von">VON</span><span class="systems">&nbsp;SOLUTIONS</span>
   </div>
   <ul class="footer-links">
     <li><a href="#">Privacy Policy</a></li>
@@ -1135,7 +1196,7 @@
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="footer-copy">
-    © 2025 VON Systems · Tampa, FL<br>AI-Powered Business Automation
+    © 2025 VON Solutions · Tampa, FL<br>AI-Powered Business Automation
   </div>
 </footer>
 
@@ -1143,22 +1204,23 @@
      SCRIPTS
 ══════════════════════════════════════════ -->
 <script>
-/* ── CURSOR ─────────────────────────────── */
-const cursorDot  = document.getElementById('cursor-dot');
-const cursorRing = document.getElementById('cursor-ring');
-let ringX = 0, ringY = 0;
+/* ── CURSOR (desktop/fine-pointer only) ─── */
+if (window.matchMedia('(pointer: fine)').matches) {
+  const cursorDot  = document.getElementById('cursor-dot');
+  const cursorRing = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', e => {
+    cursorDot.style.left  = e.clientX + 'px';
+    cursorDot.style.top   = e.clientY + 'px';
+    cursorRing.style.left = e.clientX + 'px';
+    cursorRing.style.top  = e.clientY + 'px';
+  });
+}
 
-document.addEventListener('mousemove', e => {
-  cursorDot.style.left = e.clientX + 'px';
-  cursorDot.style.top  = e.clientY + 'px';
-  cursorRing.style.left = e.clientX + 'px';
-  cursorRing.style.top  = e.clientY + 'px';
-});
-
-/* ── THREE.JS PARTICLE FIELD ────────────── */
-(function initParticles() {
+/* ── GLOBAL STAR FIELD (full page, fixed) ── */
+(function initGlobalStars() {
   if (typeof THREE === 'undefined') return;
-  const canvas   = document.getElementById('hero-canvas');
+  const canvas   = document.getElementById('global-stars');
+  if (!canvas) return;
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -1166,35 +1228,29 @@ document.addEventListener('mousemove', e => {
   const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
   camera.position.z = 90;
 
-  const COUNT = 220;
+  const COUNT = 380;
   const pos   = new Float32Array(COUNT * 3);
   const vel   = new Float32Array(COUNT * 3);
   for (let i = 0; i < COUNT; i++) {
-    pos[i*3]   = (Math.random() - 0.5) * 220;
-    pos[i*3+1] = (Math.random() - 0.5) * 180;
-    pos[i*3+2] = (Math.random() - 0.5) * 100;
-    vel[i*3]   = (Math.random() - 0.5) * 0.015;
-    vel[i*3+1] = (Math.random() - 0.5) * 0.015;
+    pos[i*3]   = (Math.random() - 0.5) * 280;
+    pos[i*3+1] = (Math.random() - 0.5) * 220;
+    pos[i*3+2] = (Math.random() - 0.5) * 120;
+    vel[i*3]   = (Math.random() - 0.5) * 0.013;
+    vel[i*3+1] = (Math.random() - 0.5) * 0.013;
     vel[i*3+2] = 0;
   }
 
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-
   const mat = new THREE.PointsMaterial({
-    color: 0xc9a84c,
-    size: 0.55,
-    transparent: true,
-    opacity: 0.55,
-    sizeAttenuation: true,
+    color: 0xc9a84c, size: 0.52,
+    transparent: true, opacity: 0.5, sizeAttenuation: true,
   });
-
   const points = new THREE.Points(geo, mat);
   scene.add(points);
 
   function resize() {
-    const hero = document.getElementById('hero');
-    const w = hero.offsetWidth, h = hero.offsetHeight;
+    const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -1202,20 +1258,19 @@ document.addEventListener('mousemove', e => {
   resize();
   window.addEventListener('resize', resize);
 
-  function animate() {
+  (function animate() {
     requestAnimationFrame(animate);
-    const positions = geo.attributes.position.array;
+    const p = geo.attributes.position.array;
     for (let i = 0; i < COUNT; i++) {
-      positions[i*3]   += vel[i*3];
-      positions[i*3+1] += vel[i*3+1];
-      if (Math.abs(positions[i*3])   > 110) vel[i*3]   *= -1;
-      if (Math.abs(positions[i*3+1]) > 90)  vel[i*3+1] *= -1;
+      p[i*3]   += vel[i*3];
+      p[i*3+1] += vel[i*3+1];
+      if (Math.abs(p[i*3])   > 140) vel[i*3]   *= -1;
+      if (Math.abs(p[i*3+1]) > 110) vel[i*3+1] *= -1;
     }
     geo.attributes.position.needsUpdate = true;
-    points.rotation.y += 0.0004;
+    points.rotation.y += 0.00035;
     renderer.render(scene, camera);
-  }
-  animate();
+  })();
 })();
 
 /* ── HERO 3D TILT ───────────────────────── */
@@ -1373,6 +1428,363 @@ async function handleSubmit(e) {
     alert('Something went wrong sending your message.\nPlease call us directly at (813) 536-6222.');
   }
 }
+</script>
+
+<!-- ── SERVICE ARCHITECTURE WHEEL ────────── -->
+<script type="text/babel">
+(function() {
+  const GOLD      = "#C9A84C";
+  const CREAM     = "#F5F0E8";
+  const GOLD_GLOW = "#e8c46a";
+
+  const TIER_LABELS = {
+    1: { label: "Tier 1 · Answer",  color: "#C9A84C", full: "ANSWER — $500/mo" },
+    2: { label: "Tier 2 · Nurture", color: "#b8922e", full: "ANSWER+ — $1,200/mo" },
+    3: { label: "Tier 3 · Grow",    color: "#8a6820", full: "GROW — $2,500/mo" },
+  };
+
+  const RAW_SPOKES = [
+    { id:"receptionist", label:"AI Receptionist",     tier:1, desc:"24/7 inbound call handling. Never miss a lead. Answers, qualifies, and books — while your client sleeps." },
+    { id:"crm",          label:"CRM",                 tier:1, desc:"Every call, lead, and interaction stored in Supabase. Full client history at a glance." },
+    { id:"calendar",     label:"Calendar",             tier:1, desc:"Automated appointment booking via Cal.com. Synced in real time. No back-and-forth." },
+    { id:"dashboard",    label:"Dashboard",            tier:1, desc:"Client-facing command center. Calls handled, leads captured, bookings made — all visible." },
+    { id:"lead",         label:"Lead Response Speed",  tier:2, desc:"Sub-5 minute automated response to every inbound lead. The difference between closing and losing." },
+    { id:"outbound",     label:"Outbound Call & Text", tier:2, desc:"AI-powered outbound campaigns. Follow-up sequences, re-engagement, and lead nurture — automated." },
+    { id:"reviews",      label:"Review Management",    tier:2, desc:"Auto-respond to Google reviews. Flag negatives. Build reputation on autopilot." },
+    { id:"content",      label:"Content Creation",     tier:3, desc:"Local search data → AI-generated content. 30 days of posts built from what customers actually search." },
+    { id:"social",       label:"Social Media Mgmt",    tier:3, desc:"Scheduled, optimized, and published across platforms. Strategy driven by local SEO signals." },
+    { id:"ads",          label:"Meta Ads",             tier:3, desc:"Full Meta Ads management. Audience targeting, creative, budget optimization — all handled." },
+    { id:"seo",          label:"SEO",                  tier:3, desc:"Google Business Profile + Places API + Trends data. Local search dominance for trades businesses." },
+  ];
+
+  const total  = RAW_SPOKES.length;
+  const SPOKES = RAW_SPOKES.map((s, i) => ({
+    ...s,
+    angle: (i * 360) / total - 90,
+    color: TIER_LABELS[s.tier].color,
+  }));
+
+  const CENTER  = 300;
+  const CORE_R  = 62;
+  const SPOKE_R = 220;
+  const NODE_R  = 40;
+
+  function polar(deg, r) {
+    const rad = (deg * Math.PI) / 180;
+    return { x: Math.cos(rad) * r, y: Math.sin(rad) * r };
+  }
+
+  /* ── WHEEL SVG ── */
+  function Wheel({ active, onToggle }) {
+    return (
+      <svg viewBox="0 0 600 600" style={{
+        display:"block", width:"100%",
+        maxWidth:"clamp(300px, 46vw, 560px)",
+        overflow:"visible", flexShrink:0,
+      }}>
+        <defs>
+          <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor="#2a1f0a"/>
+            <stop offset="100%" stopColor="#050505"/>
+          </radialGradient>
+          <filter id="glowF">
+            <feGaussianBlur stdDeviation="3.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="softglowF">
+            <feGaussianBlur stdDeviation="7" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        {/* orbit rings */}
+        {[SPOKE_R - 32, SPOKE_R, SPOKE_R + 32].map((r, i) => (
+          <circle key={i} cx={CENTER} cy={CENTER} r={r} fill="none"
+            stroke={GOLD}
+            strokeWidth={i === 1 ? 0.5 : 0.2}
+            strokeOpacity={i === 1 ? 0.18 : 0.07}
+            strokeDasharray={i === 1 ? "none" : "3 9"}
+          />
+        ))}
+
+        {/* spokes */}
+        {SPOKES.map(s => {
+          const p   = polar(s.angle, SPOKE_R);
+          const inn = polar(s.angle, CORE_R + 4);
+          const on  = active === s.id;
+          return (
+            <line key={s.id}
+              x1={CENTER+inn.x} y1={CENTER+inn.y}
+              x2={CENTER+p.x}   y2={CENTER+p.y}
+              stroke={on ? GOLD_GLOW : s.color}
+              strokeWidth={on ? 1.8 : 0.9}
+              strokeOpacity={on ? 1 : 0.3}
+              style={{transition:"all 0.35s ease"}}
+            />
+          );
+        })}
+
+        {/* core */}
+        <circle cx={CENTER} cy={CENTER} r={CORE_R}
+          fill="url(#coreGrad)" stroke={GOLD} strokeWidth="1.8" filter="url(#glowF)"/>
+        <circle cx={CENTER} cy={CENTER} r={CORE_R - 10}
+          fill="none" stroke={GOLD} strokeWidth="0.5" strokeOpacity="0.35"/>
+        <text x={CENTER} y={CENTER - 10} textAnchor="middle"
+          fill={GOLD} fontSize="12" fontFamily="Cinzel,Georgia,serif" letterSpacing="2.5">SUPA</text>
+        <text x={CENTER} y={CENTER + 6} textAnchor="middle"
+          fill={GOLD} fontSize="12" fontFamily="Cinzel,Georgia,serif" letterSpacing="2.5">BASE</text>
+        <text x={CENTER} y={CENTER + 22} textAnchor="middle"
+          fill={GOLD} fontSize="7.5" fontFamily="Georgia,serif" letterSpacing="1.5" fillOpacity="0.5">CORE HUB</text>
+
+        {/* nodes */}
+        {SPOKES.map(s => {
+          const p     = polar(s.angle, SPOKE_R);
+          const on    = active === s.id;
+          const words = s.label.split(" ");
+          const mid   = Math.ceil(words.length / 2);
+          const l1    = words.slice(0, mid).join(" ");
+          const l2    = words.slice(mid).join(" ");
+          return (
+            <g key={s.id} style={{cursor:"pointer"}} onClick={() => onToggle(s.id)}>
+              {on && (
+                <circle cx={CENTER+p.x} cy={CENTER+p.y} r={NODE_R + 10}
+                  fill="none" stroke={GOLD_GLOW} strokeWidth="1"
+                  strokeOpacity="0.35" filter="url(#softglowF)"/>
+              )}
+              <circle cx={CENTER+p.x} cy={CENTER+p.y} r={NODE_R}
+                fill={on ? "#1c1400" : "#0c0a02"}
+                stroke={on ? GOLD_GLOW : s.color}
+                strokeWidth={on ? 1.8 : 0.9}
+                strokeOpacity={on ? 1 : 0.55}
+                style={{transition:"all 0.35s ease"}}
+              />
+              {/* tier pip */}
+              <circle cx={CENTER+p.x} cy={CENTER+p.y - NODE_R + 9}
+                r={3.5} fill={s.color} fillOpacity="0.9"/>
+              <text x={CENTER+p.x} y={CENTER+p.y + (l2 ? -4 : 5)}
+                textAnchor="middle"
+                fill={on ? GOLD_GLOW : CREAM}
+                fontSize="8" fontFamily="Georgia,serif" letterSpacing="0.5"
+                style={{transition:"fill 0.35s", userSelect:"none", pointerEvents:"none"}}
+              >{l1}</text>
+              {l2 && (
+                <text x={CENTER+p.x} y={CENTER+p.y + 9}
+                  textAnchor="middle"
+                  fill={on ? GOLD_GLOW : CREAM}
+                  fontSize="8" fontFamily="Georgia,serif" letterSpacing="0.5"
+                  style={{transition:"fill 0.35s", userSelect:"none", pointerEvents:"none"}}
+                >{l2}</text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  }
+
+  /* ── INFO PANEL DEFAULT ── */
+  function DefaultPanel() {
+    return (
+      <div style={{
+        textAlign:"center", fontFamily:"Cinzel,Georgia,serif",
+        animation:"archFadeIn 0.6s ease both",
+      }}>
+        <div style={{
+          fontSize:"clamp(9px,1vw,11px)", letterSpacing:"5px",
+          color:GOLD, textTransform:"uppercase", marginBottom:"28px",
+          opacity:0.7,
+        }}>
+          Service Architecture
+        </div>
+        <div style={{
+          fontSize:"clamp(28px,3.5vw,52px)", color:"#fff",
+          fontWeight:700, letterSpacing:"0.05em",
+          lineHeight:1.1, marginBottom:"8px",
+        }}>
+          <span style={{color:GOLD}}>VON</span>
+        </div>
+        <div style={{
+          fontSize:"clamp(20px,2.5vw,36px)", color:"#fff",
+          fontWeight:400, letterSpacing:"0.35em",
+          marginBottom:"40px",
+        }}>
+          SOLUTIONS
+        </div>
+        <div style={{
+          width:"40px", height:"1px",
+          background:GOLD, margin:"0 auto 32px", opacity:0.5,
+        }}/>
+        <div style={{
+          fontSize:"clamp(9px,0.9vw,10px)", letterSpacing:"3px",
+          color:"rgba(255,255,255,0.3)", textTransform:"uppercase",
+          fontFamily:"Georgia,serif",
+        }}>
+          Select a node to explore
+        </div>
+        {/* tier legend */}
+        <div style={{
+          display:"flex", flexDirection:"column", gap:"10px",
+          marginTop:"44px", alignItems:"flex-start",
+          borderTop:"1px solid rgba(201,168,76,0.12)",
+          paddingTop:"28px",
+        }}>
+          {Object.entries(TIER_LABELS).map(([tier, { label, color, full }]) => (
+            <div key={tier} style={{display:"flex", alignItems:"center", gap:"12px"}}>
+              <div style={{
+                width:"8px", height:"8px", borderRadius:"50%",
+                background:color, flexShrink:0,
+              }}/>
+              <span style={{fontSize:"10px", color:"rgba(255,255,255,0.4)", letterSpacing:"1.5px", fontFamily:"Georgia,serif"}}>
+                {full}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── INFO PANEL ACTIVE ── */
+  function ActivePanel({ spoke, animKey }) {
+    const tier = TIER_LABELS[spoke.tier];
+    return (
+      <div key={animKey} style={{animation:"archPanelIn 0.45s ease both"}}>
+        <div style={{
+          fontSize:"9px", letterSpacing:"4px",
+          color:tier.color, textTransform:"uppercase",
+          fontFamily:"Cinzel,Georgia,serif", marginBottom:"18px",
+          display:"flex", alignItems:"center", gap:"10px",
+        }}>
+          <div style={{width:"6px",height:"6px",borderRadius:"50%",background:tier.color,flexShrink:0}}/>
+          {tier.label}
+        </div>
+        <h2 style={{
+          fontFamily:"Cinzel,Georgia,serif",
+          fontSize:"clamp(22px,3vw,42px)",
+          fontWeight:600, color:"#fff",
+          letterSpacing:"0.04em",
+          lineHeight:1.15,
+          marginBottom:"24px",
+        }}>
+          {spoke.label}
+        </h2>
+        <div style={{
+          width:"32px", height:"2px",
+          background:tier.color, marginBottom:"28px", opacity:0.8,
+        }}/>
+        <p style={{
+          fontFamily:"Georgia,serif",
+          fontSize:"clamp(13px,1.3vw,16px)",
+          color:CREAM, lineHeight:1.85,
+          opacity:0.82, margin:0,
+          maxWidth:"440px",
+        }}>
+          {spoke.desc}
+        </p>
+        <div style={{
+          marginTop:"36px",
+          display:"inline-flex", alignItems:"center", gap:"10px",
+          fontSize:"9px", letterSpacing:"3px",
+          color:"rgba(255,255,255,0.25)",
+          textTransform:"uppercase", fontFamily:"Georgia,serif",
+        }}>
+          <div style={{width:"20px",height:"1px",background:"rgba(201,168,76,0.3)"}}/>
+          {tier.full}
+          <div style={{width:"20px",height:"1px",background:"rgba(201,168,76,0.3)"}}/>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── ROOT COMPONENT ── */
+  function SpokeWheel() {
+    const [active,  setActive]  = React.useState(null);
+    const [animKey, setAnimKey] = React.useState(0);
+    const activeSpoke = SPOKES.find(s => s.id === active);
+
+    const toggle = id => {
+      setActive(prev => prev === id ? null : id);
+      setAnimKey(k => k + 1);
+    };
+
+    const isMobile = window.innerWidth <= 768;
+
+    return (
+      <div style={{
+        display:"flex",
+        flexDirection: isMobile ? "column" : "row",
+        alignItems:"center",
+        justifyContent:"center",
+        width:"100%", height:"100%",
+        fontFamily:"Georgia,serif",
+        padding: isMobile ? "80px 20px 28px" : "0 4% 0 5%",
+        gap: isMobile ? "0" : "0",
+        boxSizing:"border-box",
+      }}>
+
+        {/* ── LEFT: WHEEL ── */}
+        <div style={{
+          display:"flex", flexDirection:"column",
+          alignItems:"center", justifyContent:"center",
+          flex: isMobile ? "0 0 auto" : "0 0 52%",
+          width: isMobile ? "100%" : "52%",
+          height: isMobile ? "55vh" : "100%",
+          minHeight: isMobile ? "320px" : "auto",
+          padding: isMobile ? "0" : "0 2% 0 0",
+        }}>
+          {/* tier legend — desktop only */}
+          {!isMobile && (
+            <div style={{
+              display:"flex", gap:"18px", marginBottom:"20px", alignSelf:"flex-start",
+              paddingLeft:"4%",
+            }}>
+              {Object.entries(TIER_LABELS).map(([tier, { label, color }]) => (
+                <div key={tier} style={{
+                  display:"flex", alignItems:"center", gap:"7px",
+                  fontSize:"9px", color:"rgba(255,255,255,0.35)", letterSpacing:"1.5px",
+                }}>
+                  <div style={{width:"7px",height:"7px",borderRadius:"50%",background:color}}/>
+                  {label}
+                </div>
+              ))}
+            </div>
+          )}
+          <Wheel active={active} onToggle={toggle}/>
+        </div>
+
+        {/* ── DIVIDER ── */}
+        {!isMobile && (
+          <div style={{
+            width:"1px", height:"55%",
+            background:"linear-gradient(to bottom, transparent, rgba(201,168,76,0.25) 30%, rgba(201,168,76,0.25) 70%, transparent)",
+            flexShrink:0,
+          }}/>
+        )}
+
+        {/* ── RIGHT: INFO PANEL ── */}
+        <div style={{
+          display:"flex", alignItems:"center", justifyContent:"center",
+          flex: isMobile ? "1 1 auto" : "0 0 48%",
+          width: isMobile ? "100%" : "48%",
+          height: isMobile ? "auto" : "100%",
+          padding: isMobile ? "20px 16px 20px" : "0 5% 0 6%",
+          overflow:"hidden",
+        }}>
+          {activeSpoke
+            ? <ActivePanel spoke={activeSpoke} animKey={animKey}/>
+            : <DefaultPanel/>
+          }
+        </div>
+
+      </div>
+    );
+  }
+
+  const spokeRoot = document.getElementById("spoke-root");
+  if (spokeRoot) {
+    ReactDOM.createRoot(spokeRoot).render(<SpokeWheel />);
+  }
+})();
 </script>
 </body>
 </html>
