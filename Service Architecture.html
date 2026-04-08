@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vonthaden Solutions · Service Architecture</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100vh; background: #0a0a0a; }
+    #root { width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up  { animation: fadeUp 0.8s ease 0.0s both; }
+    .fade-up2 { animation: fadeUp 0.8s ease 0.3s both; }
+    .fade-up3 { animation: fadeUp 0.9s ease 0.5s both; }
+    .fade-up4 { animation: fadeUp 0.9s ease 0.6s both; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const GOLD      = "#C9A84C";
+const DARK      = "#0a0a0a";
+const CREAM     = "#F5F0E8";
+const GOLD_GLOW = "#e8c46a";
+
+const TIER_LABELS = {
+  1: { label: "Tier 1 · Answer",  color: "#C9A84C" },
+  2: { label: "Tier 2 · Nurture", color: "#a07830" },
+  3: { label: "Tier 3 · Grow",    color: "#7a5a20" },
+};
+
+const RAW_SPOKES = [
+  { id:"receptionist", label:"AI Receptionist",     tier:1, desc:"24/7 inbound call handling. Never miss a lead. Answers, qualifies, and books — while your client sleeps." },
+  { id:"crm",          label:"CRM",                 tier:1, desc:"Every call, lead, and interaction stored in Supabase. Full client history at a glance." },
+  { id:"calendar",     label:"Calendar",             tier:1, desc:"Automated appointment booking via Cal.com. Synced in real time. No back-and-forth." },
+  { id:"dashboard",    label:"Dashboard",            tier:1, desc:"Client-facing command center. Calls handled, leads captured, bookings made — all visible." },
+  { id:"lead",         label:"Lead Response Speed",  tier:2, desc:"Sub-5 minute automated response to every inbound lead. The difference between closing and losing." },
+  { id:"outbound",     label:"Outbound Call & Text", tier:2, desc:"AI-powered outbound campaigns. Follow-up sequences, re-engagement, and lead nurture — automated." },
+  { id:"reviews",      label:"Review Management",    tier:2, desc:"Auto-respond to Google reviews. Flag negatives. Build reputation on autopilot." },
+  { id:"content",      label:"Content Creation",     tier:3, desc:"Local search data → AI-generated content. 30 days of posts built from what customers actually search." },
+  { id:"social",       label:"Social Media Mgmt",    tier:3, desc:"Scheduled, optimized, and published across platforms. Strategy driven by local SEO signals." },
+  { id:"ads",          label:"Meta Ads",             tier:3, desc:"Full Meta Ads management. Audience targeting, creative, budget optimization — all handled." },
+  { id:"seo",          label:"SEO",                  tier:3, desc:"Google Business Profile + Places API + Trends data. Local search dominance for trades businesses." },
+];
+
+const total = RAW_SPOKES.length;
+const SPOKES = RAW_SPOKES.map((s, i) => ({
+  ...s,
+  angle: (i * 360) / total - 90,
+  color: TIER_LABELS[s.tier].color,
+}));
+
+const CENTER = 300;
+const CORE_R  = 58;
+const SPOKE_R = 210;
+const NODE_R  = 38;
+
+function polar(angleDeg, r) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return { x: Math.cos(rad) * r, y: Math.sin(rad) * r };
+}
+
+function App() {
+  const [active, setActive] = React.useState(null);
+  const activeSpoke = SPOKES.find(s => s.id === active);
+  const toggle = id => setActive(prev => prev === id ? null : id);
+
+  return (
+    <div style={{
+      minHeight:"100vh", width:"100%",
+      background: DARK,
+      display:"flex", flexDirection:"column",
+      alignItems:"center", justifyContent:"center",
+      fontFamily:"Georgia, serif",
+      padding:"24px 16px",
+      position:"relative",
+      overflow:"hidden",
+    }}>
+
+      {/* Ambient background */}
+      <div style={{
+        position:"fixed", inset:0, pointerEvents:"none",
+        background:`radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.04) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.03) 0%, transparent 50%)`,
+      }}/>
+
+      {/* ── HEADER ── */}
+      <div className="fade-up" style={{textAlign:"center", marginBottom:"8px"}}>
+        <div style={{
+          fontSize:"11px", letterSpacing:"4px", color:GOLD,
+          textTransform:"uppercase", marginBottom:"6px",
+          fontFamily:"Georgia, serif",
+        }}>
+          Vonthaden Solutions
+        </div>
+        <div style={{
+          fontSize:"22px", color:CREAM,
+          fontWeight:"normal", letterSpacing:"1px",
+        }}>
+          Service Architecture
+        </div>
+      </div>
+
+      {/* ── TIER LEGEND ── */}
+      <div className="fade-up2" style={{
+        display:"flex", gap:"20px", marginBottom:"16px",
+      }}>
+        {Object.entries(TIER_LABELS).map(([tier, { label, color }]) => (
+          <div key={tier} style={{
+            display:"flex", alignItems:"center", gap:"6px",
+            fontSize:"10px", color:"#888", letterSpacing:"1px",
+          }}>
+            <div style={{
+              width:"8px", height:"8px",
+              borderRadius:"50%", background:color,
+            }}/>
+            {label}
+          </div>
+        ))}
+      </div>
+
+      {/* ── SVG WHEEL ── */}
+      <div className="fade-up3">
+        <svg
+          width="600" height="600" viewBox="0 0 600 600"
+          style={{display:"block", maxWidth:"min(96vw,580px)", overflow:"visible"}}
+        >
+          <defs>
+            <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="#2a1f0a"/>
+              <stop offset="100%" stopColor="#0a0a0a"/>
+            </radialGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="softglow">
+              <feGaussianBlur stdDeviation="6" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          {/* Orbit rings */}
+          {[SPOKE_R-30, SPOKE_R, SPOKE_R+30].map((r,i) => (
+            <circle key={i} cx={CENTER} cy={CENTER} r={r}
+              fill="none" stroke={GOLD}
+              strokeWidth={i===1 ? 0.4 : 0.2}
+              strokeOpacity={i===1 ? 0.15 : 0.06}
+              strokeDasharray={i===1 ? "none" : "4 8"}
+            />
+          ))}
+
+          {/* Spoke lines */}
+          {SPOKES.map(spoke => {
+            const pos = polar(spoke.angle, SPOKE_R);
+            const inn = polar(spoke.angle, CORE_R + 4);
+            const on  = active === spoke.id;
+            return (
+              <line key={spoke.id}
+                x1={CENTER+inn.x} y1={CENTER+inn.y}
+                x2={CENTER+pos.x} y2={CENTER+pos.y}
+                stroke={on ? GOLD_GLOW : spoke.color}
+                strokeWidth={on ? 1.5 : 0.8}
+                strokeOpacity={on ? 0.9 : 0.35}
+                style={{transition:"all 0.3s ease"}}
+              />
+            );
+          })}
+
+          {/* Core circle */}
+          <circle cx={CENTER} cy={CENTER} r={CORE_R}
+            fill="url(#coreGrad)" stroke={GOLD}
+            strokeWidth="1.5" filter="url(#glow)"/>
+          <circle cx={CENTER} cy={CENTER} r={CORE_R-8}
+            fill="none" stroke={GOLD} strokeWidth="0.5" strokeOpacity="0.4"/>
+          <text x={CENTER} y={CENTER-8} textAnchor="middle"
+            fill={GOLD} fontSize="11" fontFamily="Georgia,serif" letterSpacing="2">
+            SUPA
+          </text>
+          <text x={CENTER} y={CENTER+6} textAnchor="middle"
+            fill={GOLD} fontSize="11" fontFamily="Georgia,serif" letterSpacing="2">
+            BASE
+          </text>
+          <text x={CENTER} y={CENTER+20} textAnchor="middle"
+            fill={GOLD} fontSize="7" fontFamily="Georgia,serif"
+            letterSpacing="1" fillOpacity="0.6">
+            CORE HUB
+          </text>
+
+          {/* Spoke nodes */}
+          {SPOKES.map(spoke => {
+            const pos   = polar(spoke.angle, SPOKE_R);
+            const on    = active === spoke.id;
+            const words = spoke.label.split(" ");
+            const mid   = Math.ceil(words.length / 2);
+            const line1 = words.slice(0, mid).join(" ");
+            const line2 = words.slice(mid).join(" ");
+
+            return (
+              <g key={spoke.id} style={{cursor:"pointer"}} onClick={() => toggle(spoke.id)}>
+
+                {on && (
+                  <circle
+                    cx={CENTER+pos.x} cy={CENTER+pos.y}
+                    r={NODE_R+6} fill="none"
+                    stroke={GOLD_GLOW} strokeWidth="1" strokeOpacity="0.4"
+                    filter="url(#softglow)"
+                  />
+                )}
+
+                <circle
+                  cx={CENTER+pos.x} cy={CENTER+pos.y} r={NODE_R}
+                  fill={on ? "#1a1200" : "#0f0c04"}
+                  stroke={on ? GOLD_GLOW : spoke.color}
+                  strokeWidth={on ? 1.5 : 0.8}
+                  strokeOpacity={on ? 1 : 0.6}
+                  style={{transition:"all 0.3s ease"}}
+                />
+
+                <circle
+                  cx={CENTER+pos.x} cy={CENTER+pos.y - NODE_R + 8}
+                  r={3} fill={spoke.color} fillOpacity="0.8"
+                />
+
+                <text
+                  x={CENTER+pos.x}
+                  y={CENTER+pos.y + (line2 ? -4 : 4)}
+                  textAnchor="middle"
+                  fill={on ? GOLD_GLOW : CREAM}
+                  fontSize="7.5" fontFamily="Georgia,serif" letterSpacing="0.5"
+                  style={{transition:"all 0.3s ease", userSelect:"none", pointerEvents:"none"}}
+                >
+                  {line1}
+                </text>
+
+                {line2 && (
+                  <text
+                    x={CENTER+pos.x} y={CENTER+pos.y+8}
+                    textAnchor="middle"
+                    fill={on ? GOLD_GLOW : CREAM}
+                    fontSize="7.5" fontFamily="Georgia,serif" letterSpacing="0.5"
+                    style={{transition:"all 0.3s ease", userSelect:"none", pointerEvents:"none"}}
+                  >
+                    {line2}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* ── INFO PANEL ── */}
+      <div className="fade-up4" style={{
+        width:"100%", maxWidth:"500px", minHeight:"80px",
+        marginTop:"8px", padding:"20px 24px",
+        border:`1px solid ${activeSpoke ? GOLD : "rgba(201,168,76,0.15)"}`,
+        borderRadius:"2px",
+        background: activeSpoke ? "rgba(201,168,76,0.04)" : "transparent",
+        transition:"all 0.4s ease",
+      }}>
+        {activeSpoke ? (
+          <>
+            <div style={{display:"flex", alignItems:"center", gap:"10px", marginBottom:"8px"}}>
+              <div style={{width:"6px", height:"6px", borderRadius:"50%", background:activeSpoke.color}}/>
+              <span style={{
+                color:GOLD, fontSize:"12px", letterSpacing:"2px",
+                textTransform:"uppercase", fontFamily:"Georgia,serif",
+              }}>
+                {activeSpoke.label}
+              </span>
+              <span style={{marginLeft:"auto", fontSize:"9px", color:"#666", letterSpacing:"1px"}}>
+                {TIER_LABELS[activeSpoke.tier].label}
+              </span>
+            </div>
+            <p style={{
+              color:CREAM, fontSize:"13px", lineHeight:"1.7",
+              margin:0, opacity:0.85, fontFamily:"Georgia,serif",
+            }}>
+              {activeSpoke.desc}
+            </p>
+          </>
+        ) : (
+          <p style={{
+            color:"#444", fontSize:"11px", letterSpacing:"2px",
+            textAlign:"center", margin:0, textTransform:"uppercase",
+            fontFamily:"Georgia,serif",
+          }}>
+            Tap any node to explore
+          </p>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        marginTop:"16px", fontSize:"9px",
+        letterSpacing:"3px", color:"#333", textTransform:"uppercase",
+      }}>
+        Vonthaden Solutions · Tampa Bay
+      </div>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
