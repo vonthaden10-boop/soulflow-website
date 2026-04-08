@@ -12,7 +12,9 @@
       "Bash(py --version)",
       "Read(//c/Users/corwi/AppData/Local/Programs/**)",
       "Bash(ls /c/Python*)",
-      "Bash(echo $PATH)"
+      "Bash(echo $PATH)",
+      "Bash(netlify status:*)",
+      "Bash(netlify deploy:*)"
     ]
   },
   "hooks": {
