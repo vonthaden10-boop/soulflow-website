@@ -33,6 +33,7 @@ Full build spec in `SPEC.md`. Skills in `.claude/skills/`.
 ---
 
 ## SELF-MAINTENANCE
+- After every completed task, run: `git add -A && git commit -m "auto: [brief description]"`
 - After every completed task, check if anything from the session belongs in a skill file or `SPEC.md`. If yes, move it automatically.
 - Never let `CLAUDE.md` exceed 50 lines. Flag if approaching.
 - After every session, output a one-line summary of what changed and why.
